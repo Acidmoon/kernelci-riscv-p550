@@ -81,6 +81,48 @@ sg dialout -c 'python3 scripts/p550-serial-capture.py /dev/ttyUSB3 --seconds 15 
   --send-line cbinfo-g --send-line sominfo --send-line ifconfig --send-line bootsel-g'
 ```
 
+### 0.8 实际采用的接入方式（2026-09-12 实测：校园网直连，NAT 方案未使用）
+
+本环境里板子**已经直接挂在校园网上**，因此完全跳过了第 5 节的 NAT 共享：
+
+```
+end1  UP  10.13.22.70/20  （板子）
+本机  wlp5s0 UP 10.8.36.167/16   → ping 10.13.22.70 通（3.5ms），22 端口开放
+```
+
+实际步骤（比默认方案少很多）：
+
+```bash
+# 1) 串口登录（板子已开机，停在 ubuntu login:）
+sg dialout -c 'python3 scripts/p550-serial-capture.py /dev/ttyUSB2 --seconds 20 --send-delay 2 \
+  --send-line "<用户名>" --send-line "<密码>" --send-line "uname -a; ip -br a"'
+
+# 2) 把本机公钥装进板子的 ~/.ssh/authorized_keys（等价 ssh-copy-id，用串口做）
+#    幂等；只需一次。命令略，见 results/2026-09-12-mcu-board-info.md 的说明
+
+# 3) 本机 ~/.ssh/config 增加别名
+Host p550
+    HostName 10.13.22.70
+    User ubuntu
+    IdentityFile ~/.ssh/id_ed25519
+
+# 4) 跑流水线
+bash scripts/run-board-tests.sh        # → OVERALL: PASS
+```
+
+> ⚠️ **对他人板子所做的唯一改动**：向 `~/.ssh/authorized_keys` 追加了本机公钥（以及新建了
+> `~/KernelCI-pipeline` 测试脚本目录）。清理方式：
+> ```bash
+> ssh p550 'sed -i "/Acidmoon@github/d" ~/.ssh/authorized_keys; rm -rf ~/KernelCI-pipeline'
+> ```
+> 除此之外**未改密码、未重启、未加载内核模块、未执行任何 `set*` 写命令**。
+
+### 0.9 校验失败时的经典错误：scp `dest open "…": Failure`
+
+`run-board-tests.sh` 早期版本在板上测试目录不存在时会直接 scp，报这个很费解的错误。
+现已改为**先 `ssh mkdir -p $TESTS_DIR` 再同步**。如果你看到这条，说明 `TESTS_DIR` 不存在或不可写。
+
+
 1. ATX 电源接好（注意 FAQ 里"部分 ATX 电源与 P550 不兼容"的清单）。
 2. **USB-C 数据线**（不是充电线）：板子**后置 Type-C（USB2.0）** ↔ 本机 USB。
 3. 网线：板子 **`end0`** ↔ 本机 **RJ45**（此时先不接校园网）。

@@ -13,10 +13,18 @@ KernelCI RISC-V 真机验证：**真机 #2 = HiFive Premier P550**，与
 
 | | P550（本仓库） | Lichee Pi 3A（姊妹仓库） | QEMU |
 |---|---|---|---|
-| SoC / 核心 | ESWIN EIC7700 / 4×SiFive P550 | SpacemiT K1 / 8×X60 | `qemu-system-riscv64 -cpu max`（TCG） |
-| 系统 | 出厂 Ubuntu 24.04（eMMC） | Bianbu 0.6 / 内核 6.1.15 | openKylin 2.0 SP2 guest |
-| 接入 | **USB-C 串口（带外）+ 有线网络（本机 NAT 共享）** | WiFi/局域网 SSH 免密 | 本地进程 `-snapshot` |
-| 扩展能力 | **待实测**（h/v/zpm 由板上 `riscv-ext-scan.sh` 判定） | 有 V(VLEN=256)，无 H，无 ZPM | 含 H / ZPM 模拟 |
+| SoC / 核心 | ESWIN EIC7700 / **4×SiFive P550** | SpacemiT K1 / 8×X60 | `qemu-system-riscv64 -cpu max`（TCG, 4 核/4G） |
+| 系统 | **Ubuntu 24.04.3 LTS / 内核 6.6.92-2025-eic7700** | Bianbu 0.6 / 内核 6.1.15 | openKylin 2.0 SP2 guest |
+| 内存 / mmu | 9.6 GiB 可用 / **sv48** | 8 GB / sv39 | 4 G / — |
+| 接入 | **USB-C 串口（带外）+ 校园网直连 SSH 免密** | 局域网 SSH 免密 | 本地进程 `-snapshot` |
+| **扩展能力（实测）** | **有 H（唯一能跑真机 KVM）；无 V；无 ZPM** | 有 V（VLEN=256）；无 H；无 ZPM | 含 H / V / ZPM 模拟 |
+
+> 结论：**P550 与 li3a 恰好互补** —— P550 提供真机 Hypervisor 路径，li3a 提供真机向量路径。
+> 详见 [docs/extension-matrix.md](docs/extension-matrix.md)。
+
+**真机实测（2026-09-12）**：`OVERALL: PASS`（cpuinfo / ext-scan / board-info / bootchain 全 PASS；
+vector 因无 V 扩展按设计记 `SKIP`）。证据：[results/2026-09-12-bootchain.md](results/2026-09-12-bootchain.md)、
+[results/2026-09-12-mcu-board-info.md](results/2026-09-12-mcu-board-info.md)。
 
 ## 目录结构
 
@@ -138,20 +146,28 @@ gh variable set P550_RUNNER --body ready --repo Acidmoon/kernelci-riscv-p550
 
 ## 已知边界（如实记录）
 
-- **P550 无 WiFi**（M.2 E-Key SDIO WiFi 明确不支持）→ 只走有线；NAT 共享模式下板子**不能被外部主动访问**，因此只适用于 Phase 1–2，lab 化需换独立路由器或给板子做校园网注册。
-- **板子是否带 V / H / ZPM 未实测** → 矩阵中标为"待实测"；若不带 V，向量测试记 SKIP（不影响整体 PASS）。
-- **本机交叉 gcc 12.3 不支持 RVV 内建**（需 GCC 13+）→ 向量测试由板子 native gcc 编译；板子 gcc 若 < 13，向量项会 FAIL（属可行动发现，不是平台缺陷）。
-- **出厂 MAC 未烧录批次**（特定序列号）→ 不先修 MAC，DHCP/SSH 必然失败。
+- **P550 无 WiFi**（M.2 E-Key SDIO WiFi 明确不支持）→ 只走有线。本环境实测：板子 `end1` 直接挂在校园网上
+  （`10.13.22.70/20`，本机可 ping/ssh），所以 **NAT 共享那套没用上**——`scripts/p550-net-share.sh` 保留作为
+  "板子无法直接接入网络时"的备用方案。
+- **有 H 无 V** → 向量测试按设计记 `SKIP`（不算失败）；**H 是真机 KVM 的前提**，但当前
+  `kvm.ko` 未加载、`/dev/kvm` 不存在（加载需板子主人同意后 `sudo modprobe kvm`）。
+- **内核配置 vs 硬件能力错位**：厂商内核开了 `CONFIG_RISCV_ISA_V/SVPBMT/ZICBOM/ZICBOZ=y`，但硬件 isa 里没有
+  → 只能以运行时 `isa`（或 `riscv_hwprobe(2)`）为准，别信内核配置。
+- **本机交叉 gcc 12.3 不支持 RVV 内建**（需 GCC 13+）→ 向量测试只能由板子 native gcc 编译。
+- **板子属于他人** → 不做密码修改、不重启、不加载模块、不执行 MCU `set*` 写命令；只做只读采集
+  （唯一的写入是 `~/KernelCI-pipeline` 测试脚本与 `/tmp` 二进制）。
 - `riscv_hwprobe(2)` 权威探针尚未接入（当前以 `/proc/cpuinfo` 的 `isa` 为依据），列为下一步。
 
 ## 计划
 
-- [x] 上板 runbook（串口 + MAC + NAT 共享 + SSH 别名 + 验收/排查）
-- [x] 真机流水线（身份/扩展/启动链/向量，含 DRY_RUN 自检）
-- [x] 跨平台扩展矩阵模板（P550 / li3a / QEMU）
+- [x] 上板 runbook（串口通道判定 + 组权限坑 + 排查表）
+- [x] 真机流水线（身份/扩展/启动链/向量，含 DRY_RUN 自检与假板集成测试）
+- [x] 跨平台扩展矩阵（P550 / li3a / QEMU）
 - [x] CI（云端 lint + 自托管真机任务）
-- [ ] 上板实测，回填矩阵与 `results/`
+- [x] **上板实测并回填矩阵与 `results/`**（2026-09-12，`OVERALL: PASS`）
+- [ ] 加载 `kvm.ko` 并跑真机 Hypervisor 测试（需主人同意；P550 独有路径）
 - [ ] 接入 `riscv_hwprobe(2)` 权威探针（与 `/proc/cpuinfo` 交叉验证）
+- [ ] 板子上跑 kselftest（与 QEMU 侧 9P/0S/1X 对照）
 - [ ] Phase 3：向上游 KernelCI 提交 RISC-V test profile
 - [ ] Phase 4：runbook / 博客 / demo / LF 徽章
 

@@ -31,6 +31,10 @@ rsync -a --exclude '.git' --exclude 'results/history/*' "$REPO_ROOT/" "$COPY/" 2
   || { echo "rsync 复制失败"; exit 2; }
 mkdir -p "$COPY/results/history"
 
+# 记录真实仓 results/history 的当前内容，最后校验本次自检完全没有写入真实仓
+BEFORE_HISTORY=$(ls -A "$REPO_ROOT/results/history" 2>/dev/null | sort)
+BEFORE_TREND=$(md5sum "$REPO_ROOT/results/trend.md" 2>/dev/null | awk '{print $1}')
+
 # ---------- 2. 造假 ssh / scp ----------
 FAKE="$TMP/fakebin"
 STAGE="$TMP/stage"
@@ -41,6 +45,7 @@ cat >"$FAKE/ssh" <<'FAKE_SSH'
 cmd="${*: -1}"
 case "$cmd" in
   *'echo OK'*) echo OK; exit 0 ;;
+  *'mkdir -p'*) exit 0 ;;
   *p550-board-info.sh*) cat "$FAKE_DIR/board-info.log"; exit 0 ;;
   *riscv-cpuinfo.sh*) cat "$FAKE_DIR/cpuinfo.log"; exit 0 ;;
   *riscv-ext-scan.sh*) cat "$FAKE_DIR/ext.log"; exit 0 ;;
@@ -165,10 +170,15 @@ fi
 # ---------- 真实仓库必须保持干净 ----------
 echo
 echo "== 隔离性 =="
-if [ -z "$(ls -A "$REPO_ROOT/results/history" 2>/dev/null | grep -v '^\.gitkeep$')" ]; then
-  ok "真实仓 results/history 未被污染"
+AFTER_HISTORY=$(ls -A "$REPO_ROOT/results/history" 2>/dev/null | sort)
+AFTER_TREND=$(md5sum "$REPO_ROOT/results/trend.md" 2>/dev/null | awk '{print $1}')
+if [ "$BEFORE_HISTORY" = "$AFTER_HISTORY" ] && [ "$BEFORE_TREND" = "$AFTER_TREND" ]; then
+  ok "真实仓 results/ 未被自检改动（history 条目 ${BEFORE_HISTORY//$'\n'/,} ; trend 未变）"
 else
-  bad "真实仓 results/history 被污染"
+  bad "真实仓 results/ 被自检改动了"
+  echo "     before history: $BEFORE_HISTORY"
+  echo "     after  history: $AFTER_HISTORY"
+  echo "     trend md5: $BEFORE_TREND -> $AFTER_TREND"
 fi
 
 echo

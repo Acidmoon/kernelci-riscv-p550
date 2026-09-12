@@ -23,11 +23,31 @@ SOW: [riscv-admin/dev-partners#49 — KernelCI: Statement of Work](https://githu
 | **带外优先的接入设计** | 串口（带外）+ NAT 共享（带内）+ 体检脚本，把"板子连不上"从玄学变成有清单的检查项 |
 | **为学生/校园网环境设计** | 绕开 Portal 认证与客户端隔离，不需要网络中心配合即可完成真机测试 |
 
+## 已完成（2026-09-12 首次真机实测）
+
+- [x] **上板并跑通真机流水线**：`bash scripts/run-board-tests.sh` → `OVERALL: PASS`
+      （board-info / cpuinfo / ext-scan / bootchain 全 PASS；vector 按设计 `SKIP`，因硬件无 V）
+- [x] **回填 `docs/extension-matrix.md` 的 P550 一列**（含身份、启动链、扩展存在性、性能）
+- [x] **产出 `results/2026-09-12-bootchain.md`**（P550 启动链快照：U-Boot→GRUB→EFI stub→内核）
+- [x] **产出 `results/2026-09-12-mcu-board-info.md`**（MCU 只读采集：SN / MAC / bootsel / 温度）
+
+### 实测带来的关键结论（对 SOW 有直接价值）
+
+1. **P550 有 H 扩展、li3a 有 V 扩展** → 两块真机恰好互补，任何单块板都无法覆盖
+   "真机 Hypervisor + 真机 Vector" 两条路径。这正是 SOW 要求"跨早期采用开发板的硬件行为差异"的现实理由。
+2. **真机 KVM 路径存在**：ISA 有 `h`，`kvm.ko` 也在（`/lib/modules/6.6.92-2025-eic7700/kernel/arch/riscv/kvm/kvm.ko`），
+   只是尚未加载。加载后 P550 可跑真机 KVM guest —— 这是 li3a（无 H）**根本做不到**的测试维度。
+3. **配置漂移实例**：厂商内核开了 `CONFIG_RISCV_ISA_V/SVPBMT/ZICBOM/ZICBOZ=y`，
+   但硬件 `isa` 里没有 → 只信内核配置会得出错误的能力结论。可作为 Phase 2"自动捕捉配置漂移"的真实样本。
+4. **地址空间差异**：P550 `sv48` vs li3a `sv39` vs QEMU 由 `-cpu max` 决定。
+5. **启动链差异**：P550 是 U-Boot → GRUB → EFI stub（`efivars` 条目为 0、`efi=noruntime`），
+   li3a 是 U-Boot → OpenSBI 直启，QEMU 是 `-kernel` 直启 —— 三种都不同。
+
 ## 未完成 / 下一步
 
-- [ ] 上板实测并回填 `docs/extension-matrix.md` 的 P550 一列
-- [ ] 产出 `results/YYYY-MM-DD-bootchain.md`（P550 启动链快照）
-- [ ] 板子 gcc 版本确认：若 < 13 则 RVV 测试需换工具链或记为 SKIP
+- [ ] 取得板子主人同意后 `sudo modprobe kvm`，跑真机 Hypervisor/KVM 测试（P550 独有路径）
+- [ ] 板子上跑 kselftest，与 QEMU 侧 9P/0S/1X 对照
+- [ ] 接入 `riscv_hwprobe(2)` 权威探针（与 `/proc/cpuinfo` 的 `isa` 交叉验证）
 - [ ] Phase 3：向 KernelCI 上游提交 RISC-V test profile（Maestro/kci-dev 路径）
 - [ ] 后期 lab 化：串口按 `/dev/serial/by-id/` 固定 + MCU 电源控制 + LAVA device-type（参考 RISE RP012 / Collabora 的公开文档）
 - [ ] Phase 4：补博客草稿与 demo 脚本

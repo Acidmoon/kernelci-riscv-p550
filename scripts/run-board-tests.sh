@@ -76,12 +76,20 @@ else
 fi
 
 echo "========== [1] 同步测试文件到开发板 =========="
+if [ "$DRY_RUN" = 1 ]; then
+  echo "  [dry-run] ssh $BOARD \"mkdir -p $TESTS_DIR\""
+else
+  # 板上目录可能还不存在（新板子/首次运行），先确保存在；
+  # 否则 scp 会以很费解的 'dest open "...": Failure' 失败
+  ssh -o ConnectTimeout=10 "$BOARD" "mkdir -p \"$TESTS_DIR\"" \
+    || fail "无法在板子上创建 $TESTS_DIR（权限？路径？）"
+fi
 for f in $FILES; do
   if [ "$DRY_RUN" = 1 ]; then
     echo "  [dry-run] scp tests/$f $BOARD:$TESTS_DIR/"
     continue
   fi
-  scp -q "$REPO_ROOT/tests/$f" "$BOARD:$TESTS_DIR/" || fail "同步 $f 失败（$TESTS_DIR 是否存在？）"
+  scp -q "$REPO_ROOT/tests/$f" "$BOARD:$TESTS_DIR/" || fail "同步 $f 失败"
   echo "  $f ✓"
 done
 
