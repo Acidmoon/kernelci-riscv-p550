@@ -1,0 +1,58 @@
+name: Board CI (HiFive Premier P550)
+
+on:
+  push:
+  workflow_dispatch:
+
+# 同一时间只允许一个板子任务，避免两次跑测互相干扰
+concurrency:
+  group: p550-board
+  cancel-in-progress: false
+
+jobs:
+  # 云端免费任务: 静态检查 + 流水线 dry-run（不碰板子，每次 push 都跑）
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax check
+        run: bash -n scripts/*.sh tests/*.sh
+      - name: Python syntax check
+        run: python3 -c "import ast; ast.parse(open('scripts/report-history.py').read())"
+      - name: ISA 解析自检（含 zihintpause/h 假阳性用例）
+        run: bash tests/selftest-isa-parse.sh
+      - name: 流水线假板自检（编排 / JSON / verdict / 趋势表）
+        run: bash tests/selftest-pipeline-fake-board.sh
+      - name: Pipeline dry-run（不接触板子）
+        run: DRY_RUN=1 bash scripts/run-board-tests.sh
+
+  # 自托管任务: 在你自己电脑上跑完整板子测试
+  # 前置条件（见 README「CI 接入」）: 为本仓库注册一个带 p550 标签的 runner
+  board-tests:
+    runs-on: [self-hosted, p550]
+    needs: lint
+    # 保险丝: 只接受主仓库调度（防止 fork 的 workflow 借 runner 跑恶意代码）
+    if: github.repository == 'Acidmoon/kernelci-riscv-p550'
+    steps:
+      - uses: actions/checkout@v4
+      - name: 板子可达性预检（给失败一个清晰原因）
+        run: |
+          ssh -o ConnectTimeout=5 -o BatchMode=yes p550 'echo OK' \
+            || { echo "::error::ssh p550 不通。检查 docs/p550-bringup.md 的串口/共享网络/别名三件事"; exit 1; }
+      - name: Run full board tests
+        run: bash scripts/run-board-tests.sh
+      - name: Update regression trend
+        if: always()
+        run: python3 scripts/report-history.py
+      - name: Commit results back
+        if: always()
+        run: |
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          git add results/
+          if git diff --cached --quiet; then
+            echo "no history changes"
+          else
+            git commit -m "ci: record p550 board tests $(date -u +%Y%m%d-%H%M%S)"
+            git push || echo "WARNING: push failed (check Workflow permissions = Read and write)"
+          fi

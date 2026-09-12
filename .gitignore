@@ -1,0 +1,10 @@
+# 编译产物与一次性文件
+build/
+*.o
+riscv_vector_add
+riscv_vector_bench
+
+# 编辑器/系统杂项
+*.swp
+*~
+.DS_Store
