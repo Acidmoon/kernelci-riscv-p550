@@ -45,7 +45,7 @@ SOW: [riscv-admin/dev-partners#49 — KernelCI: Statement of Work](https://githu
 
 ## 未完成 / 下一步
 
-- [ ] 取得板子主人同意后 `sudo modprobe kvm`，跑真机 Hypervisor/KVM 测试（P550 独有路径）
+- [x] **真机 Hypervisor/KVM 测试**：`modprobe kvm` + 一次性配置后，客户机在 H 扩展上真实执行（PASS）
 - [ ] 板子上跑 kselftest，与 QEMU 侧 9P/0S/1X 对照
 - [ ] 接入 `riscv_hwprobe(2)` 权威探针（与 `/proc/cpuinfo` 的 `isa` 交叉验证）
 - [ ] Phase 3：向 KernelCI 上游提交 RISC-V test profile（Maestro/kci-dev 路径）

@@ -53,8 +53,8 @@ lines = [
     f"Runs: {len(rows)} | target: {target} | 生成于: "
     f"{datetime.now().strftime('%Y-%m-%d %H:%M')}",
     "",
-    "| date | board-info | cpuinfo | h | v | zpm | vector | bench(ms) | bootchain | overall |",
-    "|---|---|---|---|---|---|---|---|---|---|",
+    "| date | board-info | cpuinfo | h | v | zpm | vector | bench(ms) | bootchain | hypervisor | overall |",
+    "|---|---|---|---|---|---|---|---|---|---|---|",
 ]
 
 for row in rows:
@@ -64,7 +64,7 @@ for row in rows:
     bench = tests.get("vector_bench") or {}
     ms = cell(bench.get("ms")).replace("ms", "")
     lines.append(
-        "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+        "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
             cell(row.get("date")),
             cell(tests.get("board_info")),
             cell(tests.get("cpuinfo")),
@@ -74,6 +74,7 @@ for row in rows:
             cell(tests.get("vector")),
             ms,
             cell(tests.get("bootchain")),
+            cell(tests.get("hypervisor")),
             cell(row.get("overall")),
         )
     )

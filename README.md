@@ -30,7 +30,8 @@ vector 因无 V 扩展按设计记 `SKIP`）。证据：[results/2026-09-12-boot
 
 ```
 docs/     上板 runbook、跨平台扩展矩阵、SOW 阶段映射
-tests/    板子侧脚本（身份/扩展/启动链/向量），板卡无关命名以复用；含两个可脱离硬件跑的自检
+tests/    板子侧脚本（身份/扩展/启动链/向量/hypervisor）；含两个可脱离硬件跑的自检
+          （板上没有 gcc，需要编译的测试在本机交叉编译后同步）
 scripts/  本机侧流水线（一键测试、趋势表）与接入助手（串口、网络共享、体检）
 udev/     让 ModemManager 忽略 P550 串口的规则（解决串口 Device or resource busy）
 .github/  CI（云端 lint + dry-run；自托管 runner 跑真机）
@@ -115,6 +116,7 @@ sudo cp udev/99-p550-serial.rules /etc/udev/rules.d/ && sudo udevadm control --r
 | 扩展矩阵扫描 | `tests/riscv-ext-scan.sh` | 只记录不判失败（差异是结论） |
 | 向量功能/性能 | `tests/p550-vector.sh add\|bench` | 无 v 或无 gcc → **SKIP**；有 v 但编译失败 → FAIL |
 | 启动链/固件证据 | `tests/p550-bootchain.sh` | 输出 `BOOTCHAIN_STATUS=PASS` |
+| **真机 Hypervisor（H/KVM）** | `tests/riscv-hypervisor.sh` + `tests/riscv_kvm_smoke.c` | 无 h / 无 `/dev/kvm` → **SKIP**；客户机起不来 → FAIL；产生预期 MMIO 退出 → PASS |
 
 > `SKIP` 语义：平台合理缺失（例如 P550 若不带 V）记为 SKIP 而不是 FAIL，
 > 趋势表同时呈现"通过率"和"能力差异"。详见 [results/README.md](results/README.md)。
@@ -149,8 +151,9 @@ gh variable set P550_RUNNER --body ready --repo Acidmoon/kernelci-riscv-p550
 - **P550 无 WiFi**（M.2 E-Key SDIO WiFi 明确不支持）→ 只走有线。本环境实测：板子 `end1` 直接挂在校园网上
   （`10.13.22.70/20`，本机可 ping/ssh），所以 **NAT 共享那套没用上**——`scripts/p550-net-share.sh` 保留作为
   "板子无法直接接入网络时"的备用方案。
-- **有 H 无 V** → 向量测试按设计记 `SKIP`（不算失败）；**H 是真机 KVM 的前提**，但当前
-  `kvm.ko` 未加载、`/dev/kvm` 不存在（加载需板子主人同意后 `sudo modprobe kvm`）。
+- **有 H 无 V** → 向量测试按设计记 `SKIP`（不算失败）；**H 让真机 KVM 成立**：
+  `modprobe kvm` + `scripts/p550-kvm-setup.sh`（一次性、可撤销）之后，
+  `tests/riscv_kvm_smoke.c` 的客户机测试在真机上 **PASS**。
 - **内核配置 vs 硬件能力错位**：厂商内核开了 `CONFIG_RISCV_ISA_V/SVPBMT/ZICBOM/ZICBOZ=y`，但硬件 isa 里没有
   → 只能以运行时 `isa`（或 `riscv_hwprobe(2)`）为准，别信内核配置。
 - **本机交叉 gcc 12.3 不支持 RVV 内建**（需 GCC 13+）→ 向量测试只能由板子 native gcc 编译。
@@ -165,7 +168,7 @@ gh variable set P550_RUNNER --body ready --repo Acidmoon/kernelci-riscv-p550
 - [x] 跨平台扩展矩阵（P550 / li3a / QEMU）
 - [x] CI（云端 lint + 自托管真机任务）
 - [x] **上板实测并回填矩阵与 `results/`**（2026-09-12，`OVERALL: PASS`）
-- [ ] 加载 `kvm.ko` 并跑真机 Hypervisor 测试（需主人同意；P550 独有路径）
+- [x] **真机 Hypervisor 测试（客户机在 H 扩展上执行并产生预期 MMIO 退出）**
 - [ ] 接入 `riscv_hwprobe(2)` 权威探针（与 `/proc/cpuinfo` 交叉验证）
 - [ ] 板子上跑 kselftest（与 QEMU 侧 9P/0S/1X 对照）
 - [ ] Phase 3：向上游 KernelCI 提交 RISC-V test profile

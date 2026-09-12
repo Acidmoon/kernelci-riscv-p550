@@ -122,6 +122,39 @@ bash scripts/run-board-tests.sh        # → OVERALL: PASS
 `run-board-tests.sh` 早期版本在板上测试目录不存在时会直接 scp，报这个很费解的错误。
 现已改为**先 `ssh mkdir -p $TESTS_DIR` 再同步**。如果你看到这条，说明 `TESTS_DIR` 不存在或不可写。
 
+### 0.10 真机 Hypervisor（H/KVM）——P550 独有路径
+
+P550 是唯一带 **H 扩展**的真机（li3a 没有），所以真机 Hypervisor 测试只能在这里做。
+SOW 点名的两个扩展轴是 Vector / Hypervisor：Vector 由 li3a 覆盖，Hypervisor 由 P550 覆盖。
+
+**现状与一次性的三件事**（`/dev/kvm` 默认 `crw------- root root`，且 kvm 模块默认不加载，
+所以普通用户/CI 打不开）：
+
+```bash
+# 在板子上执行（脚本已随流水线同步到 ~/KernelCI-pipeline/）
+sudo bash p550-kvm-setup.sh              # 应用：modules-load.d + udev 规则 + 用户加入 kvm 组
+sudo bash p550-kvm-setup.sh --status     # 查看
+sudo bash p550-kvm-setup.sh --undo       # 完全撤销（三个改动全部还原）
+```
+
+做的是三件标准且可逆的事：`/etc/modules-load.d/kvm.conf`（开机加载 kvm）、
+`/etc/udev/rules.d/60-p550-kvm.rules`（`/dev/kvm` 归 `kvm` 组、0660）、
+`usermod -aG kvm <用户>`。**不碰网络/SSH/登录/密码**；组身份对新登录会话生效（重连 SSH 即可）。
+
+验证：
+
+```bash
+ssh p550 'dmesg | grep -i kvm | tail -3'      # 期望: hypervisor extension available / Sv48x4 G-stage / VMID 0 bits
+bash scripts/run-board-tests.sh               # 期望: hypervisor: PASS
+```
+
+测试本身（`tests/riscv_kvm_smoke.c`）不需要 qemu、不需要客户机镜像：自己创建 VM/vCPU、
+注册 4 KiB guest 内存、写入三条 RV64 指令（`lui`/`lw`/`jal`），让客户机访存未映射的
+`0x1000_0000`，然后断言退出原因确实是 `KVM_EXIT_MMIO`。
+
+⚠️ 注意 **板子上没有 gcc**，所以这个二进制由本机交叉编译（`HOST_CC`，默认
+`riscv64-linux-gnu-gcc`）后同步过去；流水线第 [1] 步会自动做这件事。
+
 
 1. ATX 电源接好（注意 FAQ 里"部分 ATX 电源与 P550 不兼容"的清单）。
 2. **USB-C 数据线**（不是充电线）：板子**后置 Type-C（USB2.0）** ↔ 本机 USB。

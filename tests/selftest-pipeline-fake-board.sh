@@ -50,6 +50,7 @@ case "$cmd" in
   *riscv-cpuinfo.sh*) cat "$FAKE_DIR/cpuinfo.log"; exit 0 ;;
   *riscv-ext-scan.sh*) cat "$FAKE_DIR/ext.log"; exit 0 ;;
   *p550-bootchain.sh*) cat "$FAKE_DIR/bootchain.log"; exit 0 ;;
+  *riscv-hypervisor.sh*) cat "$FAKE_DIR/hypervisor.log"; exit 0 ;;
   *'p550-vector.sh bench'*) cat "$FAKE_DIR/bench.log"; exit 0 ;;
   *'p550-vector.sh add'*) cat "$FAKE_DIR/vector.log"; exit 0 ;;
   *) echo "fake-ssh: 未预期命令: $cmd" >&2; exit 1 ;;
@@ -65,8 +66,8 @@ chmod +x "$FAKE/ssh" "$FAKE/scp"
 export FAKE_DIR="$STAGE"
 
 # ---------- 3. 造各种场景的板子日志 ----------
-write_logs() { # write_logs <h:present|absent> <v:present|absent> <zpm:present|absent> <cpuinfo_ok:yes|no>
-  local h=$1 v=$2 zpm=$3 cpu_ok=$4
+write_logs() { # write_logs <h> <v> <zpm> <cpuinfo_ok> [hyper:SKIP|PASS|FAIL]
+  local h=$1 v=$2 zpm=$3 cpu_ok=$4 hyper=${5:-SKIP}
   cat >"$STAGE/board-info.log" <<EOF
 ===== uname =====
 Linux p550 6.6.21-10-premier #7 SMP PREEMPT riscv64 GNU/Linux
@@ -101,6 +102,7 @@ EOF
   printf 'vector: PASS\nVLEN = 256 bits\nvector_add: PASS\n' >"$STAGE/vector.log"
   printf 'vector bench: 4194304 元素加法耗时 12.345 ms\n结果校验: PASS\n' >"$STAGE/bench.log"
   printf 'BOOTCHAIN_STATUS=PASS\n内核命令行: root=/dev/mmcblk0p2\n' >"$STAGE/bootchain.log"
+  printf 'hypervisor: %s\nHYPERVISOR_STATUS=%s\n' "$hyper" "$hyper" >"$STAGE/hypervisor.log"
 }
 
 run_case() { # run_case <名字> [额外 env...]
@@ -137,6 +139,7 @@ rc=$(cat "$TMP/caseA.rc")
 expect_json caseA 't["vector"] == "SKIP" and bench["status"] == "SKIP" and r["overall"] == "PASS"'
 expect_json caseA 'board["ext"] == {"h": False, "v": False, "zpm": False}'
 expect_json caseA 'board["model"] == "SiFive HiFive Premier P550" and board["rootdev"] == "/dev/mmcblk0p2"'
+expect_json caseA 't["hypervisor"] == "SKIP"'
 
 # ---------- 场景 B: 有 v，基准应 PASS 且有 ms ----------
 echo
@@ -157,14 +160,23 @@ rc=$(cat "$TMP/caseC.rc")
 [ "$rc" = 1 ] && ok "退出码 1" || { bad "退出码 $rc（期望 1）"; sed 's/^/     /' "$TMP/caseC.out"; }
 expect_json caseC 't["cpuinfo"] == "FAIL" and r["overall"] == "FAIL"'
 
-# ---------- 趋势表应包含三次运行 ----------
+# ---------- 场景 D: 有 H 且 hypervisor PASS ----------
+echo
+echo "== 场景 D: 板上有 H 且 KVM 测试 PASS（应 PASS 并记录 hypervisor）=="
+write_logs present absent absent yes PASS
+run_case caseD BOARD=p550
+rc=$(cat "$TMP/caseD.rc")
+[ "$rc" = 0 ] && ok "退出码 0" || { bad "退出码 $rc（期望 0）"; sed 's/^/     /' "$TMP/caseD.out"; }
+expect_json caseD 't["hypervisor"] == "PASS" and board["ext"]["h"] is True and r["overall"] == "PASS"'
+
+# ---------- 趋势表应包含四次运行 ----------
 echo
 echo "== 趋势表 =="
-if [ -f "$COPY/results/trend.md" ] && [ "$(grep -c '^| case' "$COPY/results/trend.md")" -eq 3 ]; then
-  ok "trend.md 含 3 行记录"
+if [ -f "$COPY/results/trend.md" ] && [ "$(grep -c '^| case' "$COPY/results/trend.md")" -eq 4 ]; then
+  ok "trend.md 含 4 行记录"
   sed 's/^/     /' "$COPY/results/trend.md"
 else
-  bad "trend.md 行数不对"; sed 's/^/     /' "$COPY/results/trend.md" 2>/dev/null
+  bad "trend.md 行数不对（期望 4）"; sed 's/^/     /' "$COPY/results/trend.md" 2>/dev/null
 fi
 
 # ---------- 真实仓库必须保持干净 ----------

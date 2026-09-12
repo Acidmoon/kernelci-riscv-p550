@@ -85,24 +85,34 @@ P550 的厂商内核**编译时开启了一些硬件并不具备的扩展支持*
 > **方法学结论**：只读内核配置会得到"支持 V"的错误印象；必须以运行时 `isa`
 > （或 `riscv_hwprobe(2)`）为准。本仓库的 `riscv-ext-scan.sh` 就是干这个的。
 
-## 5. Hypervisor / KVM 现状（P550 独有路径）
+## 5. Hypervisor / KVM（P550 独有路径，已实测 PASS）
 
 | 检查 | 结果 |
 |---|---|
-| ISA `h` 扩展 | ✅ present |
-| `kvm.ko` | ✅ 存在：`/lib/modules/6.6.92-2025-eic7700/kernel/arch/riscv/kvm/kvm.ko` |
-| 模块是否加载 | ❌ 未加载（`lsmod` 无 kvm） |
-| `/dev/kvm` | ❌ 不存在 |
+| ISA `h` 扩展 | ✅ present（`rv64imafdch`） |
+| `kvm.ko` | ✅ `/lib/modules/6.6.92-2025-eic7700/kernel/arch/riscv/kvm/kvm.ko` |
+| `modprobe kvm` | ✅ 成功；`dmesg` 报 **`hypervisor extension available`**、`using Sv48x4 G-stage page table format`、**`VMID 0 bits available`** |
+| `/dev/kvm` | ✅ 存在（按 `udev/60-p550-kvm.rules` 归 `kvm` 组、0660，便于自动化） |
+| **客户机实测** | ✅ **PASS** —— 创建 VM/vCPU，客户机执行 3 条 RV64 指令并触发 `KVM_EXIT_MMIO`（`phys_addr=0x10000000`） |
 
-→ **真机 Hypervisor 测试的硬件与内核模块都已具备，只差加载模块**。
-这需要板子主人同意后执行 `sudo modprobe kvm`（本次采集**未**加载模块、**未**做任何系统改动）。
-这是 P550 相对 li3a 的关键增量：li3a 因无 H 扩展，真机 KVM 路径不可行。
+测试实现：`tests/riscv_kvm_smoke.c`（本机交叉编译成静态二进制，因为**板上没有 gcc**）。
+它不依赖 qemu、不需要客户机镜像：自己建 VM、注册 4 KiB guest 内存（GPA `0x8000_0000`）、
+写入 guest 代码、设 PC、`KVM_RUN`，然后断言退出原因确实是 MMIO。
+
+**硬件实现差异（值得记录）**：`VMID 0 bits available` 表示 hgatp 的 VMID 字段宽度为 0，
+即没有 VMID 标记能力；G-stage 页表格式为 `Sv48x4`。
+
+**未解疑点**：`KVM_GET_ONE_REG` 读到的 guest ISA 位图原始值为 `0x112d`，
+按上游 v6.6 枚举会解成 A/D/F/I/Sstc/Zicboz —— 但硬件有 `zba`/`zbb`、没有 `zicboz`，
+说明该厂商内核的枚举顺序或位图语义与上游不一致。测试程序因此**只打印原始值、不做名字解码**，
+列为待查项（可对照板上内核源码 `arch/riscv/include/uapi/asm/kvm.h`）。
 
 ## 6. 性能
 
 | 测试 | P550 | li3a | QEMU |
 |---|---|---|---|
 | vector 加法（419 万元素） | **SKIP**（无 V 扩展） | 36.058 ms（VLEN=256） | 380.263 ms（VLEN=128） |
+| **hypervisor（KVM 冒烟测试）** | **PASS**（客户机在真机 H 上执行） | 不可行（无 H） | 可运行（模拟） |
 | kselftest | 待跑 | 待板子内核升级 | 9 pass / 0 skip / 1 xfail |
 
 ## 7. 复现方式
