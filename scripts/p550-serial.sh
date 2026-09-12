@@ -128,6 +128,10 @@ cmd_probe() {
       done
       command -v fuser >/dev/null 2>&1 && fuser -v "$p" 2>&1 | sed 's/^/       /'
       echo "       排查: sudo fuser -v $p    /    sudo lsof $p"
+      echo "       若是 ModemManager 占用（Device or resource busy）:"
+      echo "         sudo systemctl stop ModemManager          # 临时验证"
+      echo "         sudo cp udev/99-p550-serial.rules /etc/udev/rules.d/   # 永久且只影响本设备"
+      echo "         sudo udevadm control --reload-rules && sudo udevadm trigger   # 然后重插 USB-C"
       continue
     fi
 

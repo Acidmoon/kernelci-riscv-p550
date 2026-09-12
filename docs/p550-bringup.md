@@ -71,6 +71,37 @@ sudo picocom -b 115200 /dev/ttyUSB2                       # 退出: Ctrl-A 再 C
   - 设备出现又消失/打不开 → `sudo apt remove -y brltty`（deepin 上 brltty 抢占 FTDI 的经典坑）
   - 满屏乱码 → 通道或波特率不对（JTAG 通道不会有可读文本）
   - 什么设备都没有 → 换线（多数 Type-C 线是纯充电线）、换 USB 口、避开 Hub
+  - **`Device or resource busy`（板子/线/驱动/权限都正常却打不开）→ 见下面「ModemManager 抢占串口」**
+
+### Phase 0 常见卡点：ModemManager 抢占串口
+
+Debian/Ubuntu 系桌面上 `ModemManager` 默认在跑，它会把 FTDI 串口当"调制解调器"探测并占用，
+症状是 `stty`/`picocom` 报 **`Device or resource busy`**，而 `ls -l /dev/ttyUSB*` 权限完全正常
+（`crw-rw---- root dialout`）、`ftdi_sio` 也绑定正常。
+
+先确认真实错误（别被笼统提示误导）：
+
+```bash
+ls -l /dev/ttyUSB*                                   # 应为 crw-rw---- root dialout
+stty -F /dev/ttyUSB2 115200; echo "rc=$?"            # 这里会打印真正的错误
+systemctl is-active ModemManager brltty brltty-udev  # 看哪个服务在跑
+sudo fuser -v /dev/ttyUSB2                           # 看谁占着
+```
+
+修复（任选）：
+
+```bash
+# A) 临时验证
+sudo systemctl stop ModemManager
+
+# B) 永久 + 只影响这个设备（推荐；规则文件在本仓库 udev/ 下）
+sudo cp udev/99-p550-serial.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules && sudo udevadm trigger
+# 然后重新插拔 USB-C 线
+
+# C) 你完全不用移动宽带功能
+sudo systemctl mask ModemManager
+```
 
 ---
 
@@ -219,6 +250,7 @@ Host p550
 |---|---|---|
 | 串口无任何设备 | 充电线 / USB Hub / brltty 抢占 | 换数据线、直插、`sudo apt remove -y brltty` |
 | 串口打不开 | 不在 dialout 组 | `sudo usermod -aG dialout $USER` 后注销重登 |
+| 串口报 `Device or resource busy` | **ModemManager 占用**（权限/驱动都正常） | 见 Phase 0 的 ModemManager 小节，装 `udev/99-p550-serial.rules` |
 | 打开后满屏乱码 | 通道或波特率不对 | 用 `p550-serial.sh probe`；波特率必须 115200 |
 | 看到 `setmac` 等命令 | 开的是 MCU 通道 | 换高/低一位（MCU 比 SoC 高一位） |
 | `ubuntu/ubuntu` 登不进 | 镜像不是 SiFive 版 / 密码被改过 | GRUB `init=/bin/bash` 重设密码（见第 3 节） |

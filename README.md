@@ -22,8 +22,9 @@ KernelCI RISC-V 真机验证：**真机 #2 = HiFive Premier P550**，与
 
 ```
 docs/     上板 runbook、跨平台扩展矩阵、SOW 阶段映射
-tests/    板子侧脚本（身份/扩展/启动链/向量），板卡无关命名以复用
+tests/    板子侧脚本（身份/扩展/启动链/向量），板卡无关命名以复用；含两个可脱离硬件跑的自检
 scripts/  本机侧流水线（一键测试、趋势表）与接入助手（串口、网络共享、体检）
+udev/     让 ModemManager 忽略 P550 串口的规则（解决串口 Device or resource busy）
 .github/  CI（云端 lint + dry-run；自托管 runner 跑真机）
 results/  运行存档（history/ 自动归档 + trend.md 趋势表）
 ```

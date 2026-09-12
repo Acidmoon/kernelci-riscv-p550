@@ -1,0 +1,28 @@
+# 99-p550-serial.rules — 让 ModemManager 忽略 HiFive Premier P550 的 FT4232H
+#
+# 背景:
+#   P550 后置 Type-C 通过一颗 FT4232H 带出 JTAG + SoC debug UART + MCU UART，
+#   在 Linux 上枚举成 /dev/ttyUSB0~3。ModemManager 会把这些串口当"调制解调器"
+#   探测并短暂/持续占用，症状是:
+#     stty -F /dev/ttyUSB2 115200   →  Device or resource busy
+#     picocom -b 115200 /dev/ttyUSB2 →  FATAL: cannot open /dev/ttyUSB2: Device or resource busy
+#   板子、线、驱动、权限全正常，就是打不开串口。
+#
+# 安装（任选一种）:
+#   A) 只想临时验证:
+#        sudo systemctl stop ModemManager
+#   B) 永久且只影响这个设备（推荐）:
+#        sudo cp udev/99-p550-serial.rules /etc/udev/rules.d/
+#        sudo udevadm control --reload-rules && sudo udevadm trigger
+#        重新插拔 USB-C 线
+#   C) 你完全不用移动宽带功能:
+#        sudo systemctl mask ModemManager
+#
+# 卸载: sudo rm /etc/udev/rules.d/99-p550-serial.rules 并重新插拔
+#
+# 说明: 两个规则是双保险 —— ModemManager 不同版本认的变量不同
+#       （ID_MM_DEVICE_IGNORE 在 USB 设备层，ID_MM_PORT_IGNORE 在 tty 端口层）。
+#       如果你还有别的 FT4232H 设备需要被 MM 管理，可再加 ATTRS{serial}=="<你的序列号>" 限定。
+
+ACTION=="add|change", SUBSYSTEM=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ENV{ID_MM_DEVICE_IGNORE}="1"
+ACTION=="add|change", SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6011", ENV{ID_MM_PORT_IGNORE}="1"

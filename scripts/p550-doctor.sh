@@ -41,6 +41,16 @@ if [ -n "$PORTS" ]; then
   else
     pass "brltty 未运行"
   fi
+  # ModemManager 是 Debian/Ubuntu 系上 FTDI 串口"打不开"的头号原因（Device or resource busy）
+  if systemctl is-active ModemManager >/dev/null 2>&1; then
+    if [ -f /etc/udev/rules.d/99-p550-serial.rules ]; then
+      pass "ModemManager 在跑，但已安装忽略规则（/etc/udev/rules.d/99-p550-serial.rules）"
+    else
+      bad "ModemManager 在跑且无忽略规则，可能占用串口 → sudo cp udev/99-p550-serial.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules && sudo udevadm trigger，然后重插 USB-C"
+    fi
+  else
+    pass "ModemManager 未运行"
+  fi
 else
   warn "没看到 /dev/ttyUSB*（板子没接？线是充电线？）→ 接好后跑 scripts/p550-serial.sh list"
 fi
