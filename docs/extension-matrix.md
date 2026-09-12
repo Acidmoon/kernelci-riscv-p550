@@ -5,6 +5,20 @@
 >
 > 状态: **P550 一列待上板实测**（`bash scripts/run-board-tests.sh` 跑完自动产生 `results/history/<ts>/ext.log`，再回填此表）。
 
+## 0. 已确认的硬件身份（2026-09-12，MCU 只读采集）
+
+详见 [results/2026-09-12-mcu-board-info.md](../results/2026-09-12-mcu-board-info.md)。**这些不依赖 Linux 登录**：
+
+| 项 | 实测值 |
+|---|---|
+| 载板 SN | `SF106CKB2502000039` |
+| SoM SN | `SF106SKB2502000039` |
+| BOM | `bomRevision 0x42`，`bomVariant 0x0` |
+| MAC（3 个） | `8c:1f:64:e8:8c:15`（SOM_Mac0）/ `:16`（SOM_Mac1）/ `:17`（MCU_Mac）— **均已正确烧录** |
+| "MAC 未烧录"批次问题 | **不适用**（SN 不在官方公告的受影响区间） |
+| bootsel | 由 HW 控制，`bootsel[3:0] = 0b0010` |
+| 板子状态 | 已启动到 `ubuntu login:`（系统层数据待登录后采集） |
+
 ## 1. 身份与启动链
 
 | 项 | P550 (本仓库) | Lichee Pi 3A (姊妹仓库) | QEMU |

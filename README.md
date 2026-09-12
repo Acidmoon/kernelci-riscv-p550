@@ -40,6 +40,9 @@ bash scripts/p550-serial.sh list
 bash scripts/p550-serial.sh probe
 bash scripts/p550-serial.sh open soc
 
+# 1b. 不想用 picocom / 要录日志 → 非交互抓取（会拉高 DTR/RTS 并自动判定通道）
+python3 scripts/p550-serial-capture.py --all --seconds 5 --send-enter
+
 # 2. 本机有线网口共享给板子（校园网走 WiFi，板子走 RJ45 → NAT）
 bash scripts/p550-net-share.sh setup
 
@@ -59,6 +62,21 @@ cat results/trend.md
 ```bash
 DRY_RUN=1 bash scripts/run-board-tests.sh
 ```
+
+**两个实测踩到的坑**（详见 [docs/p550-bringup.md](docs/p550-bringup.md) 第 0.6/0.7 节）：
+
+```bash
+# 坑 1: usermod -aG dialout 后没注销 → 串口报「权限不够」
+id -nG                      # 当前会话真实生效的组（可能没有 dialout）
+id -nG "$USER"              # 组数据库（有 dialout）→ 两者不一致就是这样来的
+sg dialout -c 'python3 scripts/p550-serial-capture.py --all --seconds 5'   # 免注销临时解法
+
+# 坑 2: ModemManager 占用串口 → stty/picocom 报 Device or resource busy
+sudo cp udev/99-p550-serial.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+
+> ⚠️ 若板子**不是你自己的**：不要改密码、不要重启、不要执行 MCU 的 `set*` 写命令（`setmac`/`setip`/`bootsel-s`/…）。
+> MCU 只读命令：`cbinfo-g`、`sominfo`、`ifconfig`、`bootsel-g`、`temp`、`date`、`stats`。
 
 上板详细步骤、预期输出、验收标准与故障排查见 **[docs/p550-bringup.md](docs/p550-bringup.md)**。
 

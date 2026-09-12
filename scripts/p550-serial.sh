@@ -75,10 +75,18 @@ cmd_list() {
     echo "brltty 未运行（正常）"
   fi
   echo
-  echo "=== 权限 ==="
-  id -nG "$USER" | tr ' ' '\n' | grep -qx dialout \
-    && echo "用户在 dialout 组 ✓" \
-    || warn "不在 dialout 组，串口会 permission denied：sudo usermod -aG dialout \$USER 然后注销重登"
+  echo "=== 权限（注意区分「当前会话」和「组数据库」）==="
+  if id -nG | tr ' ' '\n' | grep -qx dialout; then
+    echo "当前会话在 dialout 组 ✓"
+  elif id -nG "$USER" 2>/dev/null | tr ' ' '\n' | grep -qx dialout; then
+    # 经典坑: usermod 已生效（组的数据库里有），但当前登录会话没有重新计算补充组
+    warn "组数据库里已有 dialout，但**当前会话未生效** → 打开串口会报『权限不够』(EACCES)"
+    echo "       免注销临时办法: sg dialout -c '<命令>'"
+    echo "       例如: sg dialout -c 'python3 scripts/p550-serial-capture.py --all --seconds 5'"
+    echo "       彻底生效: 注销后重新登录（或重启桌面会话）"
+  else
+    warn "不在 dialout 组，串口会 permission denied：sudo usermod -aG dialout \$USER 然后注销重登"
+  fi
 }
 
 cmd_open() {

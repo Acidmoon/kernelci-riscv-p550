@@ -29,6 +29,58 @@
 
 ## 1. 硬件连接
 
+### 0.5 现场实测状态与安全边界（重要）
+
+**2026-09-12 实测**（详见 [results/2026-09-12-mcu-board-info.md](../results/2026-09-12-mcu-board-info.md)）：
+
+| 项 | 实测结果 |
+|---|---|
+| 通道映射 | `/dev/ttyUSB2` = **SoC console**（`ubuntu login:`）；`/dev/ttyUSB3` = **MCU console**（`#cmd:`）；`ttyUSB0/1` = JTAG |
+| 板子状态 | 已上电运行，风扇 2898 rpm、npu 33°C，Ubuntu 停在登录界面 |
+| 载板/SoM SN | `SF106CKB2502000039` / `SF106SKB2502000039` |
+| MAC | 三个都已正确烧录（`8c:1f:64:e8:8c:15/16/17`）→ **不需要 `setmac`**，也不在官方受影响批次 |
+| 登录 | 默认 `ubuntu`/`ubuntu` → `Login incorrect`（密码已被主人改过） |
+
+> ⚠️ **如果板子不是你自己的**（本次情况即是）：
+> **不修改密码、不重启、不执行任何 `set*` 写命令**（`setmac`/`setip`/`setmask`/`setgateway`/`bootsel-s`/`account-s`/`date-s`/`time-s`）。
+> MCU 命令行里只读命令是：`cbinfo-g`、`sominfo`、`ifconfig`、`bootsel-g`、`temp`、`date`、`stats`、`help`。
+> 系统层只做只读采集；上板测试需要先获得主人同意（会在 `~/KernelCI-pipeline` 与 `/tmp` 写文件）。
+> 没有登录凭据时，**不要尝试爆破** —— 去问主人。
+
+### 0.6 本机会话的 dialout 组坑（实测踩到）
+
+`usermod -aG dialout` 之后**不注销重登**，会出现下面这个非常迷惑的状态：
+
+```bash
+id -nG            # 当前会话真实生效的组 → 没有 dialout ！
+id -nG "$USER"    # 查组数据库         → 有 dialout
+stty -F /dev/ttyUSB2 115200   # → stty: /dev/ttyUSB2: 权限不够（EACCES）
+```
+
+原因：`id -nG <用户名>` 查的是**组数据库**，`id -nG` 查的是**当前进程真实的补充组**。
+所以"明明加了组还是权限不够"。两种解法：
+
+```bash
+# 免注销临时解法（推荐先用这个）：以 dialout 组身份跑单条命令
+sg dialout -c 'python3 scripts/p550-serial-capture.py --all --seconds 5'
+
+# 彻底生效：注销后重新登录
+```
+
+### 0.7 非交互抓取串口（不用 picocom，便于记录/自动化）
+
+```bash
+# 扫描 4 个通道并自动判断谁是 SoC / MCU（会拉高 DTR/RTS，部分板卡必须）
+sg dialout -c 'python3 scripts/p550-serial-capture.py --all --seconds 5 --send-enter'
+
+# 录一段启动日志
+sg dialout -c 'python3 scripts/p550-serial-capture.py /dev/ttyUSB2 --seconds 30'
+
+# 只读查询 MCU（绝不包含 set* 写命令）
+sg dialout -c 'python3 scripts/p550-serial-capture.py /dev/ttyUSB3 --seconds 15 --send-delay 1 \
+  --send-line cbinfo-g --send-line sominfo --send-line ifconfig --send-line bootsel-g'
+```
+
 1. ATX 电源接好（注意 FAQ 里"部分 ATX 电源与 P550 不兼容"的清单）。
 2. **USB-C 数据线**（不是充电线）：板子**后置 Type-C（USB2.0）** ↔ 本机 USB。
 3. 网线：板子 **`end0`** ↔ 本机 **RJ45**（此时先不接校园网）。

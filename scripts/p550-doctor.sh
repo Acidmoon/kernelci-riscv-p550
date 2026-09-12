@@ -31,8 +31,12 @@ PORTS=$(ls /dev/ttyUSB* 2>/dev/null | sort -V)
 if [ -n "$PORTS" ]; then
   pass "串口设备: $(echo "$PORTS" | paste -sd' ' -)"
   [ -d /dev/serial/by-id ] && ls /dev/serial/by-id/ | sed 's/^/     /'
-  if id -nG "$USER" 2>/dev/null | tr ' ' '\n' | grep -qx dialout; then
-    pass "用户在 dialout 组"
+  # 注意: `id -nG` 看的是当前进程真实生效的补充组；`id -nG $USER` 查的是组数据库。
+  # usermod 之后不注销重登，两者会不一致 —— 这正是"明明加了组还是权限不够"的原因。
+  if id -nG | tr ' ' '\n' | grep -qx dialout; then
+    pass "当前会话在 dialout 组（串口可直开）"
+  elif id -nG "$USER" 2>/dev/null | tr ' ' '\n' | grep -qx dialout; then
+    bad "组数据库有 dialout 但当前会话未生效 → 注销重登；临时可用: sg dialout -c '<命令>'"
   else
     bad "不在 dialout 组 → sudo usermod -aG dialout \$USER 后注销重登"
   fi
