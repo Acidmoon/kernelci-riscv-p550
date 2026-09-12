@@ -161,7 +161,9 @@ gh variable set P550_RUNNER --body ready --repo Acidmoon/kernelci-riscv-p550
 | runner | `acidmoon-deepin-p550`（标签 `self-hosted,Linux,X64,p550`），已注册并 online |
 | 仓库变量 | `P550_RUNNER=ready`（真机任务开关）、`KERNEL_TREE=/home/Acidmoon/kernelci-work/linux`（CI 里也能跑 kselftest） |
 | workflow 权限 | `default_workflow_permissions=write`（让 `ci-bot` 能把结果提交回仓库） |
-| 验证 | `gh workflow run "Board CI (HiFive Premier P550)"` → 真机任务全绿，`ci: record p550 board tests <ts>` 提交自动回填 `results/` |
+| 触发方式 | **push 只跑云端 lint**（几秒、不碰硬件）；**真机测试手动触发**：`gh workflow run "Board CI (HiFive Premier P550)"` |
+| 验证 | 手动 dispatch → 真机任务全绿，`ci: record p550 board tests <ts>` 提交自动回填 `results/` |
+| 为什么这样 | 真机任务在自托管 runner 上**一定会启动**（与板子是否在线无关）；板子离线时若跟着 push 跑，每次 push 都会得到一次失败。改为手动触发后，板子在不在线都不影响 push 的绿灯 |
 
 > ⚠️ **runner 的持久性**：目前这个 runner 是**前台进程**启动的，会话结束就停。
 > 要开机自启（推荐）需要一次性执行（需 sudo 密码，只有你能做）：

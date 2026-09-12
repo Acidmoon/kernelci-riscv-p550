@@ -34,16 +34,20 @@ jobs:
 
   # 自托管任务: 在你自己电脑上跑完整板子测试
   #
-  # 门控（重要）:
-  #   GitHub 的 self-hosted runner 是仓库级的，且没有 runner 时任务会永久排队
-  #   （每次 push 都堆一个 run）。所以这里用仓库变量当开关，默认不跑：
-  #     1) 先注册一个带 p550 标签的 runner（见 README「CI 接入」）
-  #     2) 再打开开关: gh variable set P550_RUNNER --body ready --repo Acidmoon/kernelci-riscv-p550
-  #   想临时跳过时: gh variable set P550_RUNNER --body off
+  # 门控（重要，两道）:
+  #   1) 只在**手动触发**时跑（github.event_name == 'workflow_dispatch'）。
+  #      原因: 真机任务跑在自托管 runner 上，任务本身一定会启动；而板子可能离线/被别人用。
+  #      若跟着 push 跑，板子不在线时每次 push 都会得到一次失败的红叉。
+  #      push 只跑云端 lint（几秒、不碰硬件）。
+  #   2) 仓库变量 P550_RUNNER 作为总开关（runner 没装好/长期不用板子时设 off）。
+  #
+  # 手动跑真机测试:
+  #   gh workflow run "Board CI (HiFive Premier P550)" --repo Acidmoon/kernelci-riscv-p550
   board-tests:
     runs-on: [self-hosted, p550]
     needs: lint
     if: >-
+      github.event_name == 'workflow_dispatch' &&
       github.repository == 'Acidmoon/kernelci-riscv-p550' &&
       vars.P550_RUNNER == 'ready'
     steps:
