@@ -1,0 +1,195 @@
+{
+  "version": {
+    "major": 5,
+    "minor": 3
+  },
+  "tests": [
+    {
+      "id": "p550_lab:20260912-155345:board-info.identity",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-155345",
+      "path": "board-info.identity",
+      "status": "PASS",
+      "start_time": "2026-09-12T15:53:45Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "board_info",
+        "archive": ""
+      }
+    },
+    {
+      "id": "p550_lab:20260912-155345:riscv-cpuinfo.isa-required-extensions",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-155345",
+      "path": "riscv-cpuinfo.isa-required-extensions",
+      "status": "PASS",
+      "start_time": "2026-09-12T15:53:45Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "cpuinfo",
+        "archive": ""
+      }
+    },
+    {
+      "id": "p550_lab:20260912-155345:riscv-ext-scan.matrix",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-155345",
+      "path": "riscv-ext-scan.matrix",
+      "status": "PASS",
+      "start_time": "2026-09-12T15:53:45Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "ext_scan",
+        "archive": ""
+      }
+    },
+    {
+      "id": "p550_lab:20260912-155345:riscv-vector.additive",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-155345",
+      "path": "riscv-vector.additive",
+      "status": "SKIP",
+      "start_time": "2026-09-12T15:53:45Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "vector",
+        "archive": ""
+      }
+    },
+    {
+      "id": "p550_lab:20260912-155345:riscv-vector.bench",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-155345",
+      "path": "riscv-vector.bench",
+      "status": "SKIP",
+      "start_time": "2026-09-12T15:53:45Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "ms": null,
+        "source_test": "vector_bench",
+        "archive": ""
+      }
+    },
+    {
+      "id": "p550_lab:20260912-155345:bootchain.firmware-evidence",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-155345",
+      "path": "bootchain.firmware-evidence",
+      "status": "PASS",
+      "start_time": "2026-09-12T15:53:45Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "bootchain",
+        "archive": ""
+      }
+    }
+  ]
+}
