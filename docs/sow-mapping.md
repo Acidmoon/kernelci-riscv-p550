@@ -50,6 +50,9 @@ SOW: [riscv-admin/dev-partners#49 — KernelCI: Statement of Work](https://githu
 - [x] **接入 `riscv_hwprobe(2)` 权威探针**：`IMA_EXT_0=0x1b`、非对齐访问=slow；与 cpuinfo 交叉验证 17 项全一致；并发现"厂商内核对未定义 key 返回 0"这一行为差异
 - [ ] Phase 3：向 KernelCI 上游提交 RISC-V test profile（Maestro/kci-dev 路径）
 - [ ] 后期 lab 化：串口按 `/dev/serial/by-id/` 固定 + MCU 电源控制 + LAVA device-type（参考 RISE RP012 / Collabora 的公开文档）
+- [x] **CI 真机自动化落地**：自托管 runner `acidmoon-deepin-p550`（label `p550`）+ 仓库变量
+      `P550_RUNNER=ready` / `KERNEL_TREE` + workflow 写权限；`gh workflow run` 验证全绿，
+      结果由 `ci-bot` 自动提交回 `results/`
 - [ ] Phase 4：补博客草稿与 demo 脚本
 
 ## 与上游生态的衔接（避免重复造轮子）

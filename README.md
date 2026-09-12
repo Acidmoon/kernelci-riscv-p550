@@ -148,6 +148,25 @@ gh variable set P550_RUNNER --body ready --repo Acidmoon/kernelci-riscv-p550
 
 > workflow 用的是 `runs-on: [self-hosted, p550]`，所以 **`--labels p550` 是必须的**；`P550_RUNNER` 变量不设时真机任务直接跳过（不会排队）。
 
+### 当前状态（2026-09-12 已落地）
+
+| 项 | 值 |
+|---|---|
+| runner | `acidmoon-deepin-p550`（标签 `self-hosted,Linux,X64,p550`），已注册并 online |
+| 仓库变量 | `P550_RUNNER=ready`（真机任务开关）、`KERNEL_TREE=/home/Acidmoon/kernelci-work/linux`（CI 里也能跑 kselftest） |
+| workflow 权限 | `default_workflow_permissions=write`（让 `ci-bot` 能把结果提交回仓库） |
+| 验证 | `gh workflow run "Board CI (HiFive Premier P550)"` → 真机任务全绿，`ci: record p550 board tests <ts>` 提交自动回填 `results/` |
+
+> ⚠️ **runner 的持久性**：目前这个 runner 是**前台进程**启动的，会话结束就停。
+> 要开机自启（推荐）需要一次性执行（需 sudo 密码，只有你能做）：
+> ```bash
+> cd ~/actions-runner-p550 && sudo ./svc.sh install && sudo ./svc.sh start
+> ```
+> 在装好服务之前，如果 runner 停了，真机任务会**排队**；此时先关掉开关避免堆积：
+> ```bash
+> gh variable set P550_RUNNER --body off --repo Acidmoon/kernelci-riscv-p550
+> ```
+
 ## 已知边界（如实记录）
 
 - **P550 无 WiFi**（M.2 E-Key SDIO WiFi 明确不支持）→ 只走有线。本环境实测：板子 `end1` 直接挂在校园网上
