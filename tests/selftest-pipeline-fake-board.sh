@@ -51,6 +51,7 @@ case "$cmd" in
   *riscv-ext-scan.sh*) cat "$FAKE_DIR/ext.log"; exit 0 ;;
   *p550-bootchain.sh*) cat "$FAKE_DIR/bootchain.log"; exit 0 ;;
   *riscv-hypervisor.sh*) cat "$FAKE_DIR/hypervisor.log"; exit 0 ;;
+  *riscv-kselftest.sh*) cat "$FAKE_DIR/kselftest.log"; exit 0 ;;
   *'p550-vector.sh bench'*) cat "$FAKE_DIR/bench.log"; exit 0 ;;
   *'p550-vector.sh add'*) cat "$FAKE_DIR/vector.log"; exit 0 ;;
   *) echo "fake-ssh: 未预期命令: $cmd" >&2; exit 1 ;;
@@ -103,6 +104,7 @@ EOF
   printf 'vector bench: 4194304 元素加法耗时 12.345 ms\n结果校验: PASS\n' >"$STAGE/bench.log"
   printf 'BOOTCHAIN_STATUS=PASS\n内核命令行: root=/dev/mmcblk0p2\n' >"$STAGE/bootchain.log"
   printf 'hypervisor: %s\nHYPERVISOR_STATUS=%s\n' "$hyper" "$hyper" >"$STAGE/hypervisor.log"
+  printf 'kselftest: PASS（pass=3 fail=0 skip=4）\nKSELFTEST_STATUS=PASS\nKSELFTEST_PASS=3\nKSELFTEST_FAIL=0\nKSELFTEST_SKIP=4\n' >"$STAGE/kselftest.log"
 }
 
 run_case() { # run_case <名字> [额外 env...]
@@ -140,6 +142,7 @@ expect_json caseA 't["vector"] == "SKIP" and bench["status"] == "SKIP" and r["ov
 expect_json caseA 'board["ext"] == {"h": False, "v": False, "zpm": False}'
 expect_json caseA 'board["model"] == "SiFive HiFive Premier P550" and board["rootdev"] == "/dev/mmcblk0p2"'
 expect_json caseA 't["hypervisor"] == "SKIP"'
+expect_json caseA 't["kselftest"]["status"] == "PASS" and t["kselftest"]["pass"] == 3 and t["kselftest"]["skip"] == 4'
 
 # ---------- 场景 B: 有 v，基准应 PASS 且有 ms ----------
 echo

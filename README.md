@@ -32,7 +32,7 @@ vector 因无 V 扩展按设计记 `SKIP`）。证据：[results/2026-09-12-boot
 docs/     上板 runbook、跨平台扩展矩阵、SOW 阶段映射
 tests/    板子侧脚本（身份/扩展/启动链/向量/hypervisor）；含两个可脱离硬件跑的自检
           （板上没有 gcc，需要编译的测试在本机交叉编译后同步）
-scripts/  本机侧流水线（一键测试、趋势表）与接入助手（串口、网络共享、体检）
+scripts/  本机侧流水线（一键测试、趋势表）、交叉编译（KVM/kselftest）与接入助手
 udev/     让 ModemManager 忽略 P550 串口的规则（解决串口 Device or resource busy）
 .github/  CI（云端 lint + dry-run；自托管 runner 跑真机）
 results/  运行存档（history/ 自动归档 + trend.md 趋势表）
@@ -117,6 +117,7 @@ sudo cp udev/99-p550-serial.rules /etc/udev/rules.d/ && sudo udevadm control --r
 | 向量功能/性能 | `tests/p550-vector.sh add\|bench` | 无 v 或无 gcc → **SKIP**；有 v 但编译失败 → FAIL |
 | 启动链/固件证据 | `tests/p550-bootchain.sh` | 输出 `BOOTCHAIN_STATUS=PASS` |
 | **真机 Hypervisor（H/KVM）** | `tests/riscv-hypervisor.sh` + `tests/riscv_kvm_smoke.c` | 无 h / 无 `/dev/kvm` → **SKIP**；客户机起不来 → FAIL；产生预期 MMIO 退出 → PASS |
+| **riscv kselftest 子集** | `tests/riscv-kselftest.sh` + `scripts/build-kselftest.sh` | 缺 V/ZPM 的用例按平台能力 **SKIP**；其余按 TAP 结果判 PASS/FAIL |
 
 > `SKIP` 语义：平台合理缺失（例如 P550 若不带 V）记为 SKIP 而不是 FAIL，
 > 趋势表同时呈现"通过率"和"能力差异"。详见 [results/README.md](results/README.md)。
@@ -170,7 +171,7 @@ gh variable set P550_RUNNER --body ready --repo Acidmoon/kernelci-riscv-p550
 - [x] **上板实测并回填矩阵与 `results/`**（2026-09-12，`OVERALL: PASS`）
 - [x] **真机 Hypervisor 测试（客户机在 H 扩展上执行并产生预期 MMIO 退出）**
 - [ ] 接入 `riscv_hwprobe(2)` 权威探针（与 `/proc/cpuinfo` 交叉验证）
-- [ ] 板子上跑 kselftest（与 QEMU 侧 9P/0S/1X 对照）
+- [x] **板上跑 riscv kselftest 子集**（P550: 3P/0F/4S，与 QEMU 9P/0S/1X 同口径对照）
 - [ ] Phase 3：向上游 KernelCI 提交 RISC-V test profile
 - [ ] Phase 4：runbook / 博客 / demo / LF 徽章
 

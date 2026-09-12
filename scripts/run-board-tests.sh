@@ -44,10 +44,12 @@ fi
 mkdir -p "$OUT"
 
 FILES="lib-isa.sh riscv-cpuinfo.sh riscv-ext-scan.sh p550-board-info.sh p550-bootchain.sh \
-p550-vector.sh riscv-hypervisor.sh p550-kvm-setup.sh riscv_vector_add.c riscv_vector_bench.c"
+p550-vector.sh riscv-hypervisor.sh riscv-kselftest.sh \
+riscv_vector_add.c riscv_vector_bench.c"
 
 # 需要在本机交叉编译后同步到板子的二进制（板子上没有 gcc）
 HOST_CC=${HOST_CC:-riscv64-linux-gnu-gcc}
+KERNEL_TREE=${KERNEL_TREE:-}   # 设置后会自动交叉编译 riscv kselftest
 HOST_BINS="riscv_kvm_smoke"
 
 fail() { echo "FAIL: $1"; exit 2; }
@@ -105,6 +107,19 @@ for b in $HOST_BINS; do
   fi
 done
 
+# riscv kselftest 子集（板上没有 gcc，必须本机交叉编译）
+if [ "$DRY_RUN" = 1 ]; then
+  echo "  [dry-run] KERNEL_TREE 存在则交叉编译 riscv kselftest → build/kselftest-riscv/"
+elif [ -n "$KERNEL_TREE" ] && [ -d "$KERNEL_TREE/tools/testing/selftests/riscv" ]; then
+  if KERNEL_TREE="$KERNEL_TREE" CC="$HOST_CC" bash "$HERE/build-kselftest.sh" >"$OUT/build-kselftest.log" 2>&1; then
+    echo "  kselftest ✓（$(find "$REPO_ROOT/build/kselftest-riscv" -type f 2>/dev/null | wc -l) 个二进制）"
+  else
+    echo "  ! kselftest 编译失败（详见 build-kselftest.log）"
+  fi
+else
+  echo "  (未设置 KERNEL_TREE → 跳过 kselftest 编译；若已有 build/kselftest-riscv 会直接同步)"
+fi
+
 echo "========== [2] 同步测试文件到开发板 =========="
 if [ "$DRY_RUN" = 1 ]; then
   echo "  [dry-run] ssh $BOARD \"mkdir -p $TESTS_DIR\""
@@ -126,6 +141,19 @@ for b in $HOST_BUILT; do
   scp -q "$REPO_ROOT/build/$b" "$BOARD:$TESTS_DIR/" || fail "同步二进制 $b 失败"
   echo "  $b (binary) ✓"
 done
+# KVM 一次性配置脚本（放在 scripts/ 而不是 tests/，单独同步，方便主人自行 --undo）
+if [ "$DRY_RUN" != 1 ]; then
+  scp -q "$REPO_ROOT/scripts/p550-kvm-setup.sh" "$BOARD:$TESTS_DIR/" \
+    && echo "  p550-kvm-setup.sh (setup) ✓"
+fi
+if [ -d "$REPO_ROOT/build/kselftest-riscv" ]; then
+  if [ "$DRY_RUN" = 1 ]; then
+    echo "  [dry-run] scp -r build/kselftest-riscv $BOARD:$TESTS_DIR/"
+  else
+    scp -q -r "$REPO_ROOT/build/kselftest-riscv" "$BOARD:$TESTS_DIR/" || fail "同步 kselftest-riscv 失败"
+    echo "  kselftest-riscv/ ✓"
+  fi
+fi
 
 echo "========== [3] 执行测试 =========="
 
@@ -186,6 +214,13 @@ echo "--- [3.7] hypervisor（H/KVM —— P550 独有轴）---"
 remote hypervisor.log "cd $TESTS_DIR && bash riscv-hypervisor.sh"
 HYPER_STATUS=$(log_status "$OUT/hypervisor.log" '^HYPERVISOR_STATUS=PASS' '^HYPERVISOR_STATUS=SKIP')
 
+echo "--- [3.8] kselftest（riscv 子集，对照 QEMU 基线 9P/0S/1X）---"
+remote kselftest.log "cd $TESTS_DIR && bash riscv-kselftest.sh"
+KS_STATUS=$(log_status "$OUT/kselftest.log" '^KSELFTEST_STATUS=PASS' '^KSELFTEST_STATUS=SKIP')
+KS_PASS=$(grep -m1 '^KSELFTEST_PASS=' "$OUT/kselftest.log" 2>/dev/null | cut -d= -f2)
+KS_FAIL=$(grep -m1 '^KSELFTEST_FAIL=' "$OUT/kselftest.log" 2>/dev/null | cut -d= -f2)
+KS_SKIP=$(grep -m1 '^KSELFTEST_SKIP=' "$OUT/kselftest.log" 2>/dev/null | cut -d= -f2)
+
 if [ "$DRY_RUN" = 1 ]; then
   echo "========== [dry-run] 结束（未写归档、未更新趋势）=========="
   exit 0
@@ -196,16 +231,27 @@ MODEL=$(grep -m1 '^MODEL=' "$OUT/board-info.log" 2>/dev/null | cut -d= -f2-)
 ISA=$(grep -m1 '^ISA=' "$OUT/cpuinfo.log" 2>/dev/null | cut -d= -f2-)
 ROOTDEV=$(grep -m1 '^ROOTDEV=' "$OUT/board-info.log" 2>/dev/null | cut -d= -f2-)
 
-python3 - "$OUT" "$INFO_STATUS" "$CPU_STATUS" "$EXT_STATUS" "$VEC_STATUS" \
-  "$BENCH_STATUS" "$BENCH_MS" "$BOOT_STATUS" "$HYPER_STATUS" "$MODEL" "$ISA" "$ROOTDEV" \
+if python3 - "$OUT" "$INFO_STATUS" "$CPU_STATUS" "$EXT_STATUS" "$VEC_STATUS" \
+  "$BENCH_STATUS" "$BENCH_MS" "$BOOT_STATUS" "$HYPER_STATUS" "$KS_STATUS" \
+  "${KS_PASS:-0}" "${KS_FAIL:-0}" "${KS_SKIP:-0}" "$MODEL" "$ISA" "$ROOTDEV" \
   "$HAS_H" "$HAS_V" "$HAS_ZPM" <<'PY'
 import json
 import os
 import sys
 
-(out, info, cpu, ext, vec, bench, bench_ms, boot, hyper, model, isa, rootdev, h, v, zpm) = sys.argv[1:16]
 
-statuses = [info, cpu, ext, vec, bench, boot, hyper]
+def _int(x):
+    """argv 传进来的一律是字符串；转成 int 让 results.json 类型规范"""
+    try:
+        return int(x)
+    except (TypeError, ValueError):
+        return 0
+
+
+(out, info, cpu, ext, vec, bench, bench_ms, boot, hyper, ks_status,
+ ks_pass, ks_fail, ks_skip, model, isa, rootdev, h, v, zpm) = sys.argv[1:20]
+
+statuses = [info, cpu, ext, vec, bench, boot, hyper, ks_status]
 overall = "FAIL" if any(s == "FAIL" for s in statuses) else "PASS"
 
 res = {
@@ -225,6 +271,12 @@ res = {
         "vector_bench": {"status": bench, "ms": bench_ms or None},
         "bootchain": boot,
         "hypervisor": hyper,
+        "kselftest": {
+            "status": ks_status,
+            "pass": _int(ks_pass),
+            "fail": _int(ks_fail),
+            "skip": _int(ks_skip),
+        },
     },
     "overall": overall,
 }
@@ -233,12 +285,17 @@ with open(os.path.join(out, "results.json"), "w", encoding="utf-8") as fh:
     json.dump(res, fh, indent=2, ensure_ascii=False)
 print(json.dumps(res, ensure_ascii=False, indent=2))
 PY
+then
+  :
+else
+  fail "汇总 JSON 生成失败（见上方 traceback）—— 不要让归档静默缺 results.json"
+fi
 
 echo "========== [5] VERDICT =========="
 if [ "$INFO_STATUS" = PASS ] && [ "$CPU_STATUS" = PASS ] && [ "$EXT_STATUS" = PASS ] \
   && [ "$VEC_STATUS" != FAIL ] && [ "$BENCH_STATUS" != FAIL ] && [ "$BOOT_STATUS" = PASS ] \
-  && [ "$HYPER_STATUS" != FAIL ]; then
-  echo "OVERALL: PASS（vector=$VEC_STATUS, bench=$BENCH_STATUS, hypervisor=$HYPER_STATUS）"
+  && [ "$HYPER_STATUS" != FAIL ] && [ "$KS_STATUS" != FAIL ]; then
+  echo "OVERALL: PASS（vector=$VEC_STATUS, bench=$BENCH_STATUS, hypervisor=$HYPER_STATUS, kselftest=${KS_PASS:-0}P/${KS_FAIL:-0}F/${KS_SKIP:-0}S）"
   echo "归档: $OUT"
   VERDICT=0
 else

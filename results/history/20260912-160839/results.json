@@ -1,0 +1,33 @@
+{
+  "date": "20260912-160839",
+  "target": "sifive-hifive-premier-p550",
+  "board": {
+    "model": "SiFive HiFive Premier P550",
+    "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+    "rootdev": "/dev/mmcblk0p3",
+    "ext": {
+      "h": true,
+      "v": false,
+      "zpm": false
+    }
+  },
+  "tests": {
+    "board_info": "PASS",
+    "cpuinfo": "PASS",
+    "ext_scan": "PASS",
+    "vector": "SKIP",
+    "vector_bench": {
+      "status": "SKIP",
+      "ms": null
+    },
+    "bootchain": "PASS",
+    "hypervisor": "PASS",
+    "kselftest": {
+      "status": "PASS",
+      "pass": 3,
+      "fail": 0,
+      "skip": 4
+    }
+  },
+  "overall": "PASS"
+}

@@ -113,9 +113,41 @@ P550 的厂商内核**编译时开启了一些硬件并不具备的扩展支持*
 |---|---|---|---|
 | vector 加法（419 万元素） | **SKIP**（无 V 扩展） | 36.058 ms（VLEN=256） | 380.263 ms（VLEN=128） |
 | **hypervisor（KVM 冒烟测试）** | **PASS**（客户机在真机 H 上执行） | 不可行（无 H） | 可运行（模拟） |
-| kselftest | 待跑 | 待板子内核升级 | 9 pass / 0 skip / 1 xfail |
+| kselftest（riscv 子集） | **3 pass / 0 fail / 4 skip** | 待板子内核升级 | **9 pass / 0 skip / 1 xfail**（全量） |
 
-## 7. 复现方式
+## 7. kselftest 对照（同源码、同口径）
+
+同一套 kselftest 源码（本机内核树 v7.2-rc7）交叉编译后在 P550 真机运行；
+QEMU 侧基线来自同事的 v7.2-rc7 全量运行。
+
+| 测试 | P550（真机） | 判定依据 |
+|---|---|---|
+| `hwprobe/hwprobe` | **PASS**（5/5） | `riscv_hwprobe(2)` 语义测试 —— 真机上通过 |
+| `mm/mmap_default` | **PASS**（1/1） | 默认 rlimit 下应为 TOP_DOWN 布局 |
+| `mm/mmap_bottomup` | **PASS**（1/1） | 需 `ulimit -s unlimited`（上游 `run_mmap.sh` 如此调用） |
+| `abi/pointer_masking` | **SKIP** | 平台无 `zpm` → 上游测试会 `Bail out!` |
+| `sigreturn/sigreturn` | **SKIP** | 平台无 `v` → 直接 SIGILL（signal 4） |
+| `vector/vstate_exec_nolibc`、`v_exec_initval_nolibc` | **SKIP** | 同上，缺 `v` |
+| `vector/vstate_prctl`、`validate_v_ptrace`、`cfi/*` | 未编出 | 需 GCC 13+（RVV intrinsics）/ 支持 CFI 的工具链 |
+
+**这张表本身就是 SOW 要的"硬件差异"证据**：
+
+1. **测试适用性取决于平台扩展**。同一套 kselftest，在 QEMU（有 V+ZPM）上跑出 9P/0S/1X；
+   在 P550（无 V、无 ZPM）上 4 个用例**根本不该跑**（跑了必然 SIGILL 或 Bail out）。
+   所以流水线按"平台扩展"决定 SKIP，而不是把它记成失败 —— 否则真机回归信号会被无关失败淹没。
+2. **`pointer_masking` 在两平台上的结局相反**：QEMU 有 ZPM 但触发上游 bug → **XFAIL**；
+   P550 没有 ZPM → **SKIP**。同一个测试、两种平台含义完全不同。
+3. **`hwprobe` 在真机通过**，说明 P550 的 `riscv_hwprobe(2)` 行为符合上游约定 ——
+   这也为 `docs/extension-matrix.md` 里的扩展结论提供了权威来源（而不只是 `/proc/cpuinfo`）。
+
+复现：
+
+```bash
+KERNEL_TREE=/path/to/linux bash scripts/build-kselftest.sh   # 本机交叉编译（板上无 gcc）
+KERNEL_TREE=/path/to/linux bash scripts/run-board-tests.sh   # 自动同步 + 板上运行 + 归档
+```
+
+## 8. 复现方式
 
 ```bash
 bash scripts/run-board-tests.sh          # 一条命令：同步→采集→归档→verdict→趋势表

@@ -53,8 +53,8 @@ lines = [
     f"Runs: {len(rows)} | target: {target} | 生成于: "
     f"{datetime.now().strftime('%Y-%m-%d %H:%M')}",
     "",
-    "| date | board-info | cpuinfo | h | v | zpm | vector | bench(ms) | bootchain | hypervisor | overall |",
-    "|---|---|---|---|---|---|---|---|---|---|---|",
+    "| date | board-info | cpuinfo | h | v | zpm | vector | bench(ms) | bootchain | hypervisor | kselftest(P/F/S) | overall |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|",
 ]
 
 for row in rows:
@@ -62,6 +62,10 @@ for row in rows:
     board = row.get("board") or {}
     ext = board.get("ext") or {}
     bench = tests.get("vector_bench") or {}
+    ks = tests.get("kselftest") or {}
+    ks_cell = "-"
+    if ks:
+        ks_cell = "{}/{}/{}".format(ks.get("pass", 0), ks.get("fail", 0), ks.get("skip", 0))
     ms = cell(bench.get("ms")).replace("ms", "")
     lines.append(
         "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
@@ -75,6 +79,7 @@ for row in rows:
             ms,
             cell(tests.get("bootchain")),
             cell(tests.get("hypervisor")),
+            ks_cell,
             cell(row.get("overall")),
         )
     )
