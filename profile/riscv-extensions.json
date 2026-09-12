@@ -1,0 +1,150 @@
+{
+  "_comment": "RISC-V 扩展测试 profile（机器可读）。这是 SOW Phase 3 说的 'RISC-V test profile suite' 的实体：把测试套件、平台前置条件、以及每个目标平台上的期望结果都声明出来，供 check-profile.py 执行化校验。用 JSON 而非 YAML 是为了零依赖（CI 里也能直接跑）。",
+  "profile": {
+    "name": "riscv-extensions",
+    "version": 1,
+    "description": "RISC-V 扩展能力与行为的跨平台测试 profile：能力探测 + 配置漂移检测 + Hypervisor/Vector 扩展轴 + kselftest 适用性"
+  },
+
+  "suites": [
+    {
+      "id": "board-info",
+      "results_key": "board_info",
+      "script": "tests/p550-board-info.sh",
+      "kind": "info",
+      "requires": [],
+      "purpose": "板卡/系统身份快照（型号、内核、发行版、根设备、固件层）"
+    },
+    {
+      "id": "riscv-cpuinfo",
+      "results_key": "cpuinfo",
+      "script": "tests/riscv-cpuinfo.sh",
+      "kind": "capability",
+      "requires": [],
+      "purpose": "必需扩展检查：缺必需扩展 → FAIL（SOW: 自动捕捉配置漂移）"
+    },
+    {
+      "id": "riscv-ext-scan",
+      "results_key": "ext_scan",
+      "script": "tests/riscv-ext-scan.sh",
+      "kind": "capability",
+      "requires": [],
+      "purpose": "扩展矩阵扫描：存在性只记录不判失败，差异本身是结论"
+    },
+    {
+      "id": "riscv-hwprobe",
+      "results_key": "hwprobe",
+      "script": "tests/riscv-hwprobe.sh",
+      "kind": "capability",
+      "requires": [],
+      "purpose": "riscv_hwprobe(2) 权威探针 × /proc/cpuinfo isa 交叉验证（不一致即漂移）"
+    },
+    {
+      "id": "riscv-vector",
+      "results_key": "vector",
+      "script": "tests/p550-vector.sh",
+      "kind": "extension",
+      "requires": ["v"],
+      "purpose": "向量功能与性能；平台无 v 应记 SKIP 而非 FAIL"
+    },
+    {
+      "id": "bootchain",
+      "results_key": "bootchain",
+      "script": "tests/p550-bootchain.sh",
+      "kind": "info",
+      "requires": [],
+      "purpose": "启动链/固件证据（U-Boot/GRUB/EFI/设备树/根设备）—— 模拟器产生不了"
+    },
+    {
+      "id": "riscv-hypervisor",
+      "results_key": "hypervisor",
+      "script": "tests/riscv-hypervisor.sh",
+      "kind": "extension",
+      "requires": ["h"],
+      "purpose": "真机 H/KVM 功能测试；无 h 或无 /dev/kvm 应记 SKIP"
+    },
+    {
+      "id": "riscv-kselftest",
+      "results_key": "kselftest",
+      "script": "tests/riscv-kselftest.sh",
+      "kind": "regression",
+      "requires": [],
+      "case_requires": {
+        "pointer_masking": ["zpm"],
+        "sigreturn": ["v"],
+        "vstate_exec_nolibc": ["v"],
+        "v_exec_initval": ["v"]
+      },
+      "purpose": "同一套 kselftest 源码在各平台跑，缺该平台扩展的用例记 SKIP"
+    }
+  ],
+
+  "targets": {
+    "p550": {
+      "results_target": "sifive-hifive-premier-p550",
+      "kind": "hardware",
+      "model": "SiFive HiFive Premier P550 (ESWIN EIC7700, 4×P550)",
+      "isa_regex": "^rv64imafdch_",
+      "expect": {
+        "ext": { "h": true, "v": false, "zpm": false },
+        "results": {
+          "board_info": "PASS",
+          "cpuinfo": "PASS",
+          "ext_scan": "PASS",
+          "hwprobe": "PASS",
+          "vector": "SKIP",
+          "vector_bench": "SKIP",
+          "bootchain": "PASS",
+          "hypervisor": "PASS",
+          "kselftest": "PASS"
+        },
+        "kselftest_min": { "pass": 3, "fail": 0 }
+      },
+      "notes": "唯一有 H 的真机；无 V/ZPM。实测 2026-09-12，见 docs/extension-matrix.md"
+    },
+
+    "li3a": {
+      "results_target": "lichee-pi-3a",
+      "kind": "hardware",
+      "model": "Lichee Pi 3A (SpacemiT K1, 8×X60)",
+      "isa_regex": "^rv64imafdcv_",
+      "expect": {
+        "ext": { "h": false, "v": true, "zpm": false },
+        "results": {
+          "cpuinfo": "PASS",
+          "vector": "PASS",
+          "vector_bench": "PASS"
+        }
+      },
+      "notes": "唯一有 V 的真机（VLEN=256）；无 H/ZPM。kselftest/hwprobe 尚未在该板采集"
+    },
+
+    "qemu": {
+      "results_target": "qemu-system-riscv64",
+      "kind": "emulator",
+      "model": "qemu-system-riscv64 -cpu max (TCG)",
+      "isa_regex": "^rv64imafdcvh",
+      "expect": {
+        "ext": { "h": true, "v": true, "zpm": true },
+        "results": {
+          "cpuinfo": "PASS",
+          "vector": "PASS",
+          "kselftest": "PASS"
+        },
+        "kselftest_min": { "pass": 9, "skip": 0, "xfail": 1 }
+      },
+      "notes": "SOW Phase 2 点名的虚拟化目标；扩展最全，用于补齐真机缺失的组合"
+    },
+
+    "spike": {
+      "results_target": "spike",
+      "kind": "emulator",
+      "model": "riscv-isa-sim（ISA 参考模拟器）",
+      "isa_regex": "^rv64",
+      "expect": {
+        "results": {}
+      },
+      "notes": "SOW 点名的另一半虚拟化目标 —— 尚未接入（本机未安装，需 sudo 装 autoconf/device-tree-compiler）"
+    }
+  }
+}

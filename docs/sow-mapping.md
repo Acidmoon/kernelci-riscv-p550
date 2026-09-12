@@ -9,7 +9,7 @@ SOW: [riscv-admin/dev-partners#49 — KernelCI: Statement of Work](https://githu
 |---|---|---|
 | **Phase 1** Setup & Initial PR | 本地容器化测试流水线初始化；跟踪 issue；首个校验脚本能本地解析 | `scripts/run-board-tests.sh`（一条命令闭环）+ `tests/*.sh`（板子侧）+ `results/history/<ts>/results.json` |
 | **Phase 2** Core Logic / Feature | 主执行逻辑部署；自动捕捉配置漂移；对目标扩展（如 Vector/Hypervisor）测回归通过率 | `tests/riscv-ext-scan.sh` + `tests/riscv-cpuinfo.sh`（扩展/配置漂移检测）+ `scripts/report-history.py`（回归趋势表，SKIP 语义）+ `docs/extension-matrix.md`（跨平台矩阵） |
-| **Phase 3** Upstream / Integration | 向 KernelCI 主代码库提正式 PR，集成 RISC-V 测试 profile | 待办：把 ext-scan/cpuinfo 的判定逻辑整理成 KernelCI 可用的 test profile 与 YAML 描述（见"下一步"） |
+| **Phase 3** Upstream / Integration | 向 KernelCI 主代码库提正式 PR，集成 RISC-V 测试 profile | 🟡 **profile 已实体化**（`profile/riscv-extensions.json` + `scripts/check-profile.py`，期望值可执行断言 + 漂移检测）；KCIDB 结果格式已打通（`scripts/kcidb-emit.py`，官方 schema 校验通过）；**PR 尚未提**（按指示按住）。注意上游现状：`kernelci-core/test-configs.yaml` 已 LEGACY，现代路径是 `kernelci-pipeline` 配置或 KCIDB 提交 |
 | **Phase 4** Documentation & Demo | 测试执行 runbook；技术博客草稿；demo 录制 | `docs/p550-bringup.md`（runbook 已成型）+ `docs/extension-matrix.md` + 本文件 |
 
 ## 本仓库相对 li3a 的增量（不只是换块板子）

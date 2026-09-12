@@ -34,6 +34,7 @@ tests/    板子侧脚本（身份/扩展/启动链/向量/hypervisor）；含�
           （板上没有 gcc，需要编译的测试在本机交叉编译后同步）
 scripts/  本机侧流水线（一键测试、趋势表）、交叉编译（KVM/kselftest）与接入助手
 udev/     让 ModemManager 忽略 P550 串口的规则（解决串口 Device or resource busy）
+profile/  RISC-V 扩展测试 profile（机器可读的期望值 + 漂移检测，SOW Phase 3 的交付物实体）
 integration/kernelci/  Phase 3 集成工作区：KCIDB 报告生成与上游 Maestro 配置草案（尚未提 PR）
 .github/  CI（云端 lint + dry-run；自托管 runner 跑真机）
 results/  运行存档（history/ 自动归档 + trend.md 趋势表）
@@ -123,6 +124,7 @@ sudo cp udev/99-p550-serial.rules /etc/udev/rules.d/ && sudo udevadm control --r
 | **真机 Hypervisor（H/KVM）** | `tests/riscv-hypervisor.sh` + `tests/riscv_kvm_smoke.c` | 无 h / 无 `/dev/kvm` → **SKIP**；客户机起不来 → FAIL；产生预期 MMIO 退出 → PASS |
 | **riscv kselftest 子集** | `tests/riscv-kselftest.sh` + `scripts/build-kselftest.sh` | 缺 V/ZPM 的用例按平台能力 **SKIP**；其余按 TAP 结果判 PASS/FAIL |
 | **`riscv_hwprobe(2)` 权威探针** | `tests/riscv-hwprobe.sh` + `tests/riscv_hwprobe_dump.c` | 与 `/proc/cpuinfo` 的 `isa` 逐项交叉验证，不一致数记入 `hwprobe.mismatch` |
+| **profile 一致性（漂移检测）** | `scripts/check-profile.py` + `profile/riscv-extensions.json` | 实测与 profile 期望逐项比对，不一致数记入 `profile.mismatch`（不判本次失败但显著提示） |
 
 > `SKIP` 语义：平台合理缺失（例如 P550 若不带 V）记为 SKIP 而不是 FAIL，
 > 趋势表同时呈现"通过率"和"能力差异"。详见 [results/README.md](results/README.md)。

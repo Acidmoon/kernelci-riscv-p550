@@ -85,8 +85,11 @@ EFI=yes
 BOARDINFO_STATUS=PASS
 EOF
 
-  local isa="rv64imafdc_zicsr_zifencei_zba_zbb_zbs_zicbom_zicboz_sstc_sscofpmf_svpbmt_zihintpause"
-  [ "$v" = present ] && isa="rv64imafdcv_zicsr_zifencei_zba_zbb_zbs_zicbom_zicboz_sstc_sscofpmf_svpbmt_zihintpause"
+  # isa 要与 h/v 一致，否则 profile 检查会（正确地）判成漂移
+  local base="rv64imafdc"
+  [ "$h" = present ] && base="rv64imafdch"
+  [ "$v" = present ] && base="${base}v"
+  local isa="${base}_zicsr_zifencei_zicntr_zihpm_zba_zbb_sscofpmf"
   {
     echo "架构: riscv64"
     echo "isa:  $isa"
@@ -147,6 +150,8 @@ expect_json caseA 'board["model"] == "SiFive HiFive Premier P550" and board["roo
 expect_json caseA 't["hypervisor"] == "SKIP"'
 expect_json caseA 't["kselftest"]["status"] == "PASS" and t["kselftest"]["pass"] == 3 and t["kselftest"]["skip"] == 4'
 expect_json caseA 't["hwprobe"]["status"] == "PASS" and t["hwprobe"]["mismatch"] == 0'
+# 合成数据里 h=absent，与 profile 里 p550 的期望（h=true）不符 → 应当被检出漂移
+expect_json caseA 't["profile"]["status"] == "FAIL" and t["profile"]["mismatch"] > 0'
 
 # ---------- 场景 B: 有 v，基准应 PASS 且有 ms ----------
 echo
@@ -175,6 +180,8 @@ run_case caseD BOARD=p550
 rc=$(cat "$TMP/caseD.rc")
 [ "$rc" = 0 ] && ok "退出码 0" || { bad "退出码 $rc（期望 0）"; sed 's/^/     /' "$TMP/caseD.out"; }
 expect_json caseD 't["hypervisor"] == "PASS" and board["ext"]["h"] is True and r["overall"] == "PASS"'
+# caseD 的合成数据与 p550 profile 完全一致 → 应当 0 漂移
+expect_json caseD 't["profile"]["status"] == "PASS" and t["profile"]["mismatch"] == 0'
 
 # ---------- 趋势表应包含四次运行 ----------
 echo

@@ -1,0 +1,18 @@
+运行 ./riscv_kvm_smoke ...
+== RISC-V KVM 冒烟测试 ==
+  KVM API version: 12（期望 12）
+  KVM_CREATE_VM: ok (fd=4)
+  KVM_CREATE_VCPU: ok (fd=5)
+  guest 内存: GPA 0x80000000 -> host 0x7fffb58e4000 (4 KiB)
+  guest mode = S, PC = 0x80000000
+  guest ISA 位图(原始值): 0x112d（厂商内核语义待确认，不做名字解码）
+  guest mvendorid : 0x489
+  guest marchid   : 0x8000000000000008
+  guest mimpid    : 0x6220425
+  （与板上 /proc/cpuinfo 的 mvendorid/marchid/mimpid 对照可验证偏移假设）
+  KVM_RUN ...
+  exit_reason = 6 (KVM_EXIT_MMIO)  phys_addr=0x10000000 len=4 is_write=0
+
+hypervisor: PASS（客户机在真机 H 扩展上执行并产生预期 MMIO 退出）
+hypervisor: PASS
+HYPERVISOR_STATUS=PASS

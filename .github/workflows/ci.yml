@@ -23,6 +23,8 @@ jobs:
             python3 -c "import ast,sys; ast.parse(open(sys.argv[1]).read())" "$f"
             echo "  $f OK"
           done
+      - name: profile 自检（test profile suite 自身一致性）
+        run: python3 scripts/check-profile.py --selfcheck
       - name: ISA 解析自检（含 zihintpause/h 假阳性用例）
         run: bash tests/selftest-isa-parse.sh
       - name: 流水线假板自检（编排 / JSON / verdict / 趋势表）

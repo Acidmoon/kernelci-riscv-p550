@@ -53,6 +53,7 @@ PATH_MAP = {
     "bootchain": "bootchain.firmware-evidence",
     "hypervisor": "riscv-hypervisor.kvm-smoke",
     "hwprobe": "riscv-hwprobe.authoritative-vs-isa",
+    "profile": "riscv-profile.expectation-consistency",
 }
 
 

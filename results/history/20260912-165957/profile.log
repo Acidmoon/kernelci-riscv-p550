@@ -1,0 +1,3 @@
+profile 一致性: PASS（17 项一致 / 0 项不一致, target=p550, 归档=20260912-165957）
+PROFILE_STATUS=PASS
+PROFILE_MISMATCH=0

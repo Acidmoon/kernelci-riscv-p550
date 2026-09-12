@@ -299,11 +299,36 @@ else
   fail "汇总 JSON 生成失败（见上方 traceback）—— 不要让归档静默缺 results.json"
 fi
 
-echo "========== [5] VERDICT =========="
+echo "========== [5] profile 一致性（SOW Phase 2：自动捕捉配置漂移）=========="
+PROFILE_MISMATCH=0
+if python3 "$REPO_ROOT/scripts/check-profile.py" --archive "$OUT" --quiet | tee "$OUT/profile.log"; then
+  PROFILE_STATUS=PASS
+else
+  PROFILE_STATUS=FAIL
+fi
+PROFILE_MISMATCH=$(grep -m1 '^PROFILE_MISMATCH=' "$OUT/profile.log" 2>/dev/null | cut -d= -f2)
+PROFILE_STATUS=$(grep -m1 '^PROFILE_STATUS=' "$OUT/profile.log" 2>/dev/null | cut -d= -f2)
+PROFILE_STATUS=${PROFILE_STATUS:-SKIP}
+PROFILE_MISMATCH=${PROFILE_MISMATCH:-0}
+# 回写进 results.json，让趋势表能长期跟踪漂移
+python3 - "$OUT/results.json" "$PROFILE_STATUS" "$PROFILE_MISMATCH" <<'PYEOF2'
+import json, sys
+path, status, mismatch = sys.argv[1], sys.argv[2], int(sys.argv[3])
+with open(path, encoding="utf-8") as fh:
+    res = json.load(fh)
+res.setdefault("tests", {})["profile"] = {"status": status, "mismatch": mismatch}
+with open(path, "w", encoding="utf-8") as fh:
+    json.dump(res, fh, indent=2, ensure_ascii=False)
+print(f"  results.json 已记录 profile 一致性: {status}（不一致 {mismatch} 项）")
+PYEOF2
+
+echo "========== [6] VERDICT =========="
 if [ "$INFO_STATUS" = PASS ] && [ "$CPU_STATUS" = PASS ] && [ "$EXT_STATUS" = PASS ] \
   && [ "$VEC_STATUS" != FAIL ] && [ "$BENCH_STATUS" != FAIL ] && [ "$BOOT_STATUS" = PASS ] \
   && [ "$HYPER_STATUS" != FAIL ] && [ "$KS_STATUS" != FAIL ] && [ "$HW_STATUS" != FAIL ]; then
   echo "OVERALL: PASS（vector=$VEC_STATUS, hypervisor=$HYPER_STATUS, kselftest=${KS_PASS:-0}P/${KS_FAIL:-0}F/${KS_SKIP:-0}S, hwprobe=$HW_STATUS/不一致${HW_MISMATCH:-0}）"
+  # profile 漂移不判本次运行失败（测试本身可能全过），但必须显著提示
+  [ "$PROFILE_STATUS" = FAIL ] && echo "  ⚠️  profile 漂移: 实测与 profile 期望不一致 ${PROFILE_MISMATCH} 项（见 profile.log）"
   echo "归档: $OUT"
   VERDICT=0
 else
@@ -312,10 +337,10 @@ else
   VERDICT=1
 fi
 
-echo "========== [6] 更新回归趋势表 =========="
+echo "========== [7] 更新回归趋势表 =========="
 python3 "$REPO_ROOT/scripts/report-history.py" || echo "(趋势表更新失败，不影响本次结果)"
 
-echo "========== [7] 生成 KCIDB 报告（Phase 3：KernelCI 集成）=========="
+echo "========== [8] 生成 KCIDB 报告（Phase 3：KernelCI 集成）=========="
 KCIDB_OUT="$REPO_ROOT/results/kcidb/$(basename "$OUT").json"
 if python3 "$REPO_ROOT/scripts/kcidb-emit.py" "$OUT" --validate --out "$KCIDB_OUT" 2>&1 | sed 's/^/  /'; then
   echo "  KCIDB 报告: results/kcidb/$(basename "$OUT").json"

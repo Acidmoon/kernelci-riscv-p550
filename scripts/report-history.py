@@ -53,8 +53,8 @@ lines = [
     f"Runs: {len(rows)} | target: {target} | 生成于: "
     f"{datetime.now().strftime('%Y-%m-%d %H:%M')}",
     "",
-    "| date | board-info | cpuinfo | h | v | zpm | vector | bench(ms) | bootchain | hypervisor | kselftest(P/F/S) | hwprobe | overall |",
-    "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+    "| date | board-info | cpuinfo | h | v | zpm | vector | bench(ms) | bootchain | hypervisor | kselftest(P/F/S) | hwprobe | profile | overall |",
+    "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
 ]
 
 for row in rows:
@@ -72,9 +72,15 @@ for row in rows:
         hw_cell = "{}".format(hw.get("status", "-"))
         if hw.get("mismatch"):
             hw_cell += "(!{})".format(hw["mismatch"])
+    pr = tests.get("profile") or {}
+    pr_cell = "-"
+    if pr:
+        pr_cell = str(pr.get("status", "-"))
+        if pr.get("mismatch"):
+            pr_cell += "(!{})".format(pr["mismatch"])
     ms = cell(bench.get("ms")).replace("ms", "")
     lines.append(
-        "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+        "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
             cell(row.get("date")),
             cell(tests.get("board_info")),
             cell(tests.get("cpuinfo")),
@@ -87,6 +93,7 @@ for row in rows:
             cell(tests.get("hypervisor")),
             ks_cell,
             hw_cell,
+            pr_cell,
             cell(row.get("overall")),
         )
     )

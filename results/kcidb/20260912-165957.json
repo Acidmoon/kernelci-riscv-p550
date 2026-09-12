@@ -1,0 +1,583 @@
+{
+  "version": {
+    "major": 5,
+    "minor": 3
+  },
+  "tests": [
+    {
+      "id": "p550_lab:20260912-165957:board-info.identity",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "board-info.identity",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "board_info",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-cpuinfo.isa-required-extensions",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-cpuinfo.isa-required-extensions",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "cpuinfo",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-ext-scan.matrix",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-ext-scan.matrix",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "ext_scan",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-vector.additive",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-vector.additive",
+      "status": "SKIP",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "vector",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-vector.bench",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-vector.bench",
+      "status": "SKIP",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "ms": null,
+        "source_test": "vector_bench",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:bootchain.firmware-evidence",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "bootchain.firmware-evidence",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "bootchain",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-hypervisor.kvm-smoke",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-hypervisor.kvm-smoke",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "source_test": "hypervisor",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-hwprobe.authoritative-vs-isa",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-hwprobe.authoritative-vs-isa",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "mismatch": 0,
+        "source_test": "hwprobe",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:kselftest",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "kselftest",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "pass": 3,
+        "fail": 0,
+        "skip": 4,
+        "source_test": "kselftest",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:profile",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "profile",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "misc": {
+        "mismatch": 0,
+        "source_test": "profile",
+        "archive": "20260912-165957"
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-kselftest.hwprobe",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-kselftest.hwprobe",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "comment": "# Totals: pass:5 fail:0 xfail:0 xpass:0 skip:0 error:0",
+      "misc": {
+        "source": "kselftest",
+        "archive": "20260912-165957",
+        "suite_totals": {
+          "pass": 3,
+          "fail": 0,
+          "skip": 4
+        }
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-kselftest.mmap_default",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-kselftest.mmap_default",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "comment": "# Totals: pass:1 fail:0 xfail:0 xpass:0 skip:0 error:0",
+      "misc": {
+        "source": "kselftest",
+        "archive": "20260912-165957",
+        "suite_totals": {
+          "pass": 3,
+          "fail": 0,
+          "skip": 4
+        }
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-kselftest.mmap_bottomup",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-kselftest.mmap_bottomup",
+      "status": "PASS",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "comment": "# Totals: pass:1 fail:0 xfail:0 xpass:0 skip:0 error:0",
+      "misc": {
+        "source": "kselftest",
+        "archive": "20260912-165957",
+        "suite_totals": {
+          "pass": 3,
+          "fail": 0,
+          "skip": 4
+        }
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-kselftest.pointer_masking",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-kselftest.pointer_masking",
+      "status": "SKIP",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "comment": "平台无 zpm 扩展（pointer masking 未实现）",
+      "misc": {
+        "source": "kselftest",
+        "archive": "20260912-165957",
+        "suite_totals": {
+          "pass": 3,
+          "fail": 0,
+          "skip": 4
+        }
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-kselftest.sigreturn",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-kselftest.sigreturn",
+      "status": "SKIP",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "comment": "平台无 v 扩展（该测试需要 RVV，跑下去会 SIGILL）",
+      "misc": {
+        "source": "kselftest",
+        "archive": "20260912-165957",
+        "suite_totals": {
+          "pass": 3,
+          "fail": 0,
+          "skip": 4
+        }
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-kselftest.vstate_exec_nolibc",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-kselftest.vstate_exec_nolibc",
+      "status": "SKIP",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "comment": "平台无 v 扩展（该测试需要 RVV，跑下去会 SIGILL）",
+      "misc": {
+        "source": "kselftest",
+        "archive": "20260912-165957",
+        "suite_totals": {
+          "pass": 3,
+          "fail": 0,
+          "skip": 4
+        }
+      }
+    },
+    {
+      "id": "p550_lab:20260912-165957:riscv-kselftest.v_exec_initval",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-165957",
+      "path": "riscv-kselftest.v_exec_initval",
+      "status": "SKIP",
+      "start_time": "2026-09-12T16:59:57Z",
+      "environment": {
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "misc": {
+          "board_model": "SiFive HiFive Premier P550",
+          "board_compatible": "eswin,eic7x",
+          "kernel": "6.6.92-2025-eic7700",
+          "os": "Ubuntu 24.04.3 LTS",
+          "nproc": "4",
+          "isa": "rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf",
+          "extensions": {
+            "h": true,
+            "v": false,
+            "zpm": false
+          }
+        }
+      },
+      "comment": "平台无 v 扩展（该测试需要 RVV，跑下去会 SIGILL）",
+      "misc": {
+        "source": "kselftest",
+        "archive": "20260912-165957",
+        "suite_totals": {
+          "pass": 3,
+          "fail": 0,
+          "skip": 4
+        }
+      }
+    }
+  ]
+}
