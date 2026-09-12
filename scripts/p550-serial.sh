@@ -61,6 +61,9 @@ cmd_list() {
     printf '%s -> %s\n' "$p" "$(udevadm info -q property -n "$p" 2>/dev/null | grep -E 'ID_VENDOR_ID|ID_MODEL|ID_SERIAL_SHORT' | paste -sd' ' -)"
   done
   echo
+  echo "=== /dev/ttyUSB* 权限（应为 crw-rw---- root dialout）==="
+  ls -l /dev/ttyUSB* 2>/dev/null | sed 's/^/  /'
+  echo
   echo "=== 经验映射 ==="
   printf 'SoC console: %s\n' "$(resolve soc || echo '<未找到>')"
   printf 'MCU console: %s\n' "$(resolve mcu || echo '<未找到>')"
@@ -102,12 +105,32 @@ classify() { # classify <抓到的文本>
 
 cmd_probe() {
   command -v stty >/dev/null 2>&1 || die "缺 stty（coreutils/util-linux）"
-  local ports p out
+  local ports p out err
   ports=$(all_ports)
   [ -n "$ports" ] || die "没找到 /dev/ttyUSB*，检查 USB-C 线是否插好、是否是数据线"
   for p in $ports; do
     echo "--- $p ---"
-    stty -F "$p" "$BAUD" raw -echo 2>/dev/null || { warn "打不开 $p（权限？）"; continue; }
+
+    # 先分清「权限不足」和「其他错误」，不要笼统报"权限？"
+    if [ ! -r "$p" ] || [ ! -w "$p" ]; then
+      warn "当前用户对该设备没有读写权限"
+      ls -l "$p" | sed 's/^/       /'
+      echo "       当前用户: $(id -un)  组: $(id -nG | tr ' ' ',')"
+      echo "       处理: sudo usermod -aG dialout \$USER 然后注销重登"
+      continue
+    fi
+
+    if ! err=$(stty -F "$p" "$BAUD" raw -echo 2>&1); then
+      warn "打不开 $p: $err"
+      ls -l "$p" | sed 's/^/       /'
+      for s in ModemManager brltty brltty-udev; do
+        systemctl is-active "$s" >/dev/null 2>&1 && echo "       疑似占用: systemd 服务 $s 正在运行"
+      done
+      command -v fuser >/dev/null 2>&1 && fuser -v "$p" 2>&1 | sed 's/^/       /'
+      echo "       排查: sudo fuser -v $p    /    sudo lsof $p"
+      continue
+    fi
+
     printf '\n' >"$p" 2>/dev/null
     out=$(timeout 3 cat "$p" 2>/dev/null | tr -d '\0' | head -c 2000)
     if [ -n "$out" ]; then
