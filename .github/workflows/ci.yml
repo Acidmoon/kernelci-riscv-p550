@@ -18,7 +18,11 @@ jobs:
       - name: Shell syntax check
         run: bash -n scripts/*.sh tests/*.sh
       - name: Python syntax check
-        run: python3 -c "import ast; ast.parse(open('scripts/report-history.py').read())"
+        run: |
+          for f in scripts/*.py; do
+            python3 -c "import ast,sys; ast.parse(open(sys.argv[1]).read())" "$f"
+            echo "  $f OK"
+          done
       - name: ISA 解析自检（含 zihintpause/h 假阳性用例）
         run: bash tests/selftest-isa-parse.sh
       - name: 流水线假板自检（编排 / JSON / verdict / 趋势表）

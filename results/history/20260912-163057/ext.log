@@ -1,0 +1,71 @@
+扩展扫描 — isa: rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf
+（present=内核 isa 字段里有；absent=没有。缺失不代表失败，只代表差异）
+
+扩展         状态
+-------------- ------
+g              absent
+EXT_g=absent
+h              present
+EXT_h=present
+v              absent
+EXT_v=absent
+zicsr          present
+EXT_zicsr=present
+zifencei       present
+EXT_zifencei=present
+zihintpause    absent
+EXT_zihintpause=absent
+zicntr         present
+EXT_zicntr=present
+zicbom         absent
+EXT_zicbom=absent
+zicboz         absent
+EXT_zicboz=absent
+zicbop         absent
+EXT_zicbop=absent
+zihintntl      absent
+EXT_zihintntl=absent
+sstc           absent
+EXT_sstc=absent
+sscofpmf       present
+EXT_sscofpmf=present
+svpbmt         absent
+EXT_svpbmt=absent
+zba            present
+EXT_zba=present
+zbb            present
+EXT_zbb=present
+zbs            absent
+EXT_zbs=absent
+zbc            absent
+EXT_zbc=absent
+zbkb           absent
+EXT_zbkb=absent
+zicond         absent
+EXT_zicond=absent
+zacas          absent
+EXT_zacas=absent
+ztso           absent
+EXT_ztso=absent
+zpm            absent
+EXT_zpm=absent
+zfh            absent
+EXT_zfh=absent
+zic64b         absent
+EXT_zic64b=absent
+ziccamoa       absent
+EXT_ziccamoa=absent
+ziccif         absent
+EXT_ziccif=absent
+ziccrse        absent
+EXT_ziccrse=absent
+za64rs         absent
+EXT_za64rs=absent
+sv48           absent
+EXT_sv48=absent
+sv57           absent
+EXT_sv57=absent
+
+mmu: sv48
+
+EXTSCAN=ok

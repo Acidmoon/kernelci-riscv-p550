@@ -34,6 +34,7 @@ mkdir -p "$COPY/results/history"
 # 记录真实仓 results/history 的当前内容，最后校验本次自检完全没有写入真实仓
 BEFORE_HISTORY=$(ls -A "$REPO_ROOT/results/history" 2>/dev/null | sort)
 BEFORE_TREND=$(md5sum "$REPO_ROOT/results/trend.md" 2>/dev/null | awk '{print $1}')
+BEFORE_KCIDB=$(ls -A "$REPO_ROOT/results/kcidb" 2>/dev/null | sort)
 
 # ---------- 2. 造假 ssh / scp ----------
 FAKE="$TMP/fakebin"
@@ -189,12 +190,33 @@ else
   bad "trend.md 行数不对（期望 4）"; sed 's/^/     /' "$COPY/results/trend.md" 2>/dev/null
 fi
 
+# ---------- KCIDB 报告应被产出且结构正确 ----------
+echo
+echo "== KCIDB 报告（Phase 3 集成产物）=="
+KS_FILE="$COPY/results/kcidb/caseA.json"
+if [ -f "$KS_FILE" ] && python3 - "$KS_FILE" <<'PY'
+import json, sys
+r = json.load(open(sys.argv[1]))
+assert r["version"]["major"] == 5, r["version"]
+assert len(r["tests"]) > 0, "没有 tests"
+ids = [t["id"] for t in r["tests"]]
+assert all(i.startswith("p550_lab:") for i in ids), ids[:2]
+sys.exit(0)
+PY
+then
+  ok "KCIDB 报告已生成且结构正确（version 5.x + tests + id 前缀）"
+else
+  bad "KCIDB 报告缺失或结构不对"
+fi
+
 # ---------- 真实仓库必须保持干净 ----------
 echo
 echo "== 隔离性 =="
 AFTER_HISTORY=$(ls -A "$REPO_ROOT/results/history" 2>/dev/null | sort)
 AFTER_TREND=$(md5sum "$REPO_ROOT/results/trend.md" 2>/dev/null | awk '{print $1}')
-if [ "$BEFORE_HISTORY" = "$AFTER_HISTORY" ] && [ "$BEFORE_TREND" = "$AFTER_TREND" ]; then
+AFTER_KCIDB=$(ls -A "$REPO_ROOT/results/kcidb" 2>/dev/null | sort)
+if [ "$BEFORE_HISTORY" = "$AFTER_HISTORY" ] && [ "$BEFORE_TREND" = "$AFTER_TREND" ] \
+   && [ "$BEFORE_KCIDB" = "$AFTER_KCIDB" ]; then
   ok "真实仓 results/ 未被自检改动（history 条目 ${BEFORE_HISTORY//$'\n'/,} ; trend 未变）"
 else
   bad "真实仓 results/ 被自检改动了"

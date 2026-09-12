@@ -1,6 +1,6 @@
 # Real-hardware regression history (sifive-hifive-premier-p550)
 
-Runs: 7 | target: sifive-hifive-premier-p550 | 生成于: 2026-09-12 16:18
+Runs: 8 | target: sifive-hifive-premier-p550 | 生成于: 2026-09-12 16:32
 
 | date | board-info | cpuinfo | h | v | zpm | vector | bench(ms) | bootchain | hypervisor | kselftest(P/F/S) | hwprobe | overall |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -11,3 +11,4 @@ Runs: 7 | target: sifive-hifive-premier-p550 | 生成于: 2026-09-12 16:18
 | 20260912-161333 | PASS | PASS | yes | no | no | SKIP | - | PASS | PASS | 3/0/4 | PASS | PASS |
 | 20260912-161648 | PASS | PASS | yes | no | no | SKIP | - | PASS | PASS | 3/0/4 | PASS | PASS |
 | 20260912-161805 | PASS | PASS | yes | no | no | SKIP | - | PASS | PASS | 3/0/4 | PASS | PASS |
+| 20260912-163057 | PASS | PASS | yes | no | no | SKIP | - | PASS | PASS | 3/0/4 | PASS | PASS |

@@ -4,7 +4,7 @@
 #
 # 步骤:
 #   [0] 板子可达性   [1] 本机交叉编译   [2] 同步文件+二进制   [3] 执行测试
-#   [4] 汇总 JSON + verdict   [5] 更新回归趋势表
+#   [4] 汇总 JSON + verdict   [5] 更新回归趋势表   [6] 生成 KCIDB 报告
 #
 # 注意: 板上没有 gcc（实测确认），所以需要编译的测试一律在本机交叉编译后同步过去。
 #
@@ -314,5 +314,14 @@ fi
 
 echo "========== [6] 更新回归趋势表 =========="
 python3 "$REPO_ROOT/scripts/report-history.py" || echo "(趋势表更新失败，不影响本次结果)"
+
+echo "========== [7] 生成 KCIDB 报告（Phase 3：KernelCI 集成）=========="
+KCIDB_OUT="$REPO_ROOT/results/kcidb/$(basename "$OUT").json"
+if python3 "$REPO_ROOT/scripts/kcidb-emit.py" "$OUT" --validate --out "$KCIDB_OUT" 2>&1 | sed 's/^/  /'; then
+  echo "  KCIDB 报告: results/kcidb/$(basename "$OUT").json"
+  echo "  （提交方式见 integration/kernelci/README.md；默认 unlinked 模式仅本地预览，不可直接提交）"
+else
+  echo "  ! KCIDB 报告生成失败（不影响本次真机结果）"
+fi
 
 exit "$VERDICT"

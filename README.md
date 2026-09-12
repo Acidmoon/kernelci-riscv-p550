@@ -34,6 +34,7 @@ tests/    板子侧脚本（身份/扩展/启动链/向量/hypervisor）；含�
           （板上没有 gcc，需要编译的测试在本机交叉编译后同步）
 scripts/  本机侧流水线（一键测试、趋势表）、交叉编译（KVM/kselftest）与接入助手
 udev/     让 ModemManager 忽略 P550 串口的规则（解决串口 Device or resource busy）
+integration/kernelci/  Phase 3 集成工作区：KCIDB 报告生成与上游 Maestro 配置草案（尚未提 PR）
 .github/  CI（云端 lint + dry-run；自托管 runner 跑真机）
 results/  运行存档（history/ 自动归档 + trend.md 趋势表）
 ```
@@ -64,6 +65,9 @@ bash scripts/run-board-tests.sh
 
 # 5. 看回归趋势
 cat results/trend.md
+
+# 6. Phase 3：把结果转成 KernelCI 的 KCIDB 格式（可选官方 schema 校验）
+python3 scripts/kcidb-emit.py --latest --validate --print
 ```
 
 **不接触板子验证流水线逻辑**（改脚本时很有用，CI 也跑这个）：

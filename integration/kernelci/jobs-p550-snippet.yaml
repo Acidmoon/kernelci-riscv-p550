@@ -1,0 +1,79 @@
+# jobs-p550-snippet.yaml — 给 kernelci-pipeline 的 Maestro 配置草案（**未提交，不提 PR**）
+#
+# 目的: 记录"若要正式集成，PR 会长什么样"，字段严格照抄官方文档：
+#   https://docs.kernelci.org/components/maestro/pipeline/developer-documentation/
+#
+# ⚠️ 状态: 草案。下列 TODO 未完成前不要提交：
+#   TODO-1  runtime 模板: 我们的 lab 是"串口 + SSH + shell 脚本"，需要写一个
+#           config/runtime/<name>.jinja2，或改用 pull lab（lab 主动出站轮询 Maestro，
+#           不需要公网可达 —— 更适合校园网里的板子）
+#   TODO-2  device type: platforms 里的设备名要与 kernelci-pipeline 的 platforms 段一致
+#   TODO-3  kcidb_test_suite: 每个 suite 名必须先在 kernelci/kcidb 的 tests.yaml 注册
+#   TODO-4  nfsroot/rootfs: 我们的测试不依赖 KernelCI rootfs（直接在板子自己的 Ubuntu 上跑），
+#           这与上游"nfsroot + LAVA"的形态不同 —— 需要与上游讨论是否接受这种 job 形态
+#
+# 本文件不是可直接 merge 的配置，而是设计记录。
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 我们的测试套件：一个 job（kind: job），下面挂多个 test（逐项结果）
+  # 对照本仓库: tests/{riscv-cpuinfo,riscv-ext-scan,riscv-hwprobe,riscv-hypervisor,
+  #             riscv-kselftest}.sh
+  # ---------------------------------------------------------------------------
+  riscv-ext-p550:
+    template: generic.jinja2            # TODO-1: 需要一个能描述"串口+SSH"的模板
+    kind: job
+    params:
+      test_method: shell                # Maestro 支持 shell/docker/lava/kubernetes runtime
+      job_timeout: 20
+      # 我们的脚本入参（对照 run-board-tests.sh 的环境变量）
+      tests_dir: /home/ubuntu/KernelCI-pipeline
+      required_exts: i,m,a,f,d,c        # P550 的必需扩展（SOW: 自动捕捉配置漂移）
+      # 关键设计: 测试适用性取决于平台扩展 —— 无 v/zpm 的机器上，
+      # vector/sigreturn/pointer_masking 记 SKIP 而不是 FAIL（本仓库的实现见 tests/riscv-kselftest.sh）
+    rules:
+      min_version:
+        version: 6
+        patchlevel: 6
+      tree:
+        - mainline
+        - next
+    kcidb_test_suite: riscv-ext.p550    # TODO-3: 到 kernelci/kcidb 的 tests.yaml 注册
+
+  # 单用例形态（kind: test）：KVM 冒烟测试只返回一个结果，符合文档里 kver 那种"单测试"形态
+  riscv-hypervisor-kvm-smoke:
+    template: generic.jinja2
+    kind: test
+    params:
+      test_method: shell
+      job_timeout: 10
+    rules:
+      # 只有带 H 扩展的平台才有意义；本仓库用 SKIP 语义处理缺失（见 docs/extension-matrix.md）
+      min_version:
+        version: 6
+        patchlevel: 6
+    kcidb_test_suite: riscv-hypervisor.kvm-smoke
+
+scheduler:
+  # 等 mainline 的 kbuild 完成后，在 P550 上跑我们的套件
+  - job: riscv-ext-p550
+    event:
+      channel: node
+      name: kbuild-gcc-12-riscv        # TODO: 核对上游 riscv 的 kbuild job 名
+      state: available
+    runtime:
+      type: shell                      # TODO-1: 或 pull-lab
+      name: p550-lab                   # 需要在 runtimes 段里定义
+    platforms:
+      - sifive-hifive-premier-p550     # TODO-2: 与该段已有设备名核对
+
+  - job: riscv-hypervisor-kvm-smoke
+    event:
+      channel: node
+      name: kbuild-gcc-12-riscv
+      state: available
+    runtime:
+      type: shell
+      name: p550-lab
+    platforms:
+      - sifive-hifive-premier-p550
