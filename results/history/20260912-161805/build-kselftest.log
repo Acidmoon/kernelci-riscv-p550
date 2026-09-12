@@ -1,0 +1,19 @@
+== 交叉编译 riscv kselftest ==
+  内核树: /home/Acidmoon/kernelci-work/linux
+  编译器: riscv64-linux-gnu-gcc (Deepin 12.3.0-17deepin8) 12.3.0
+Toolchain doesn't support CFI, skipping CFI kselftest.
+make[2]: 对“all”无需做任何事。
+make[2]: 离开目录“/home/Acidmoon/kernelci-work/linux/tools/testing/selftests/riscv/cfi”
+make[1]: 离开目录“/home/Acidmoon/kernelci-work/linux/tools/testing/selftests/riscv”
+make: 离开目录“/home/Acidmoon/kernelci-work/linux/tools/testing/selftests”
+
+== 暂存结果: /home/Acidmoon/actions-runner-p550/_work/kernelci-riscv-p550/kernelci-riscv-p550/build/kselftest-riscv ==
+  ./abi/pointer_masking
+  ./hwprobe/hwprobe
+  ./mm/mmap_bottomup
+  ./mm/mmap_default
+  ./sigreturn/sigreturn
+  ./vector/v_exec_initval_nolibc
+  ./vector/vstate_exec_nolibc
+
+下一步: bash scripts/run-board-tests.sh      # 会自动同步并在板上运行
