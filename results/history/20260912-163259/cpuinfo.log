@@ -1,0 +1,37 @@
+架构: riscv64
+isa:  rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf
+基础: rv64imafdch（单字母段: imafdch）
+多字母: zicntr zicsr zifencei zihpm zba zbb sscofpmf
+
+--- 板上身份（真机签名；模拟器一般不会一致）---
+processor	: 0
+hart		: 0
+mmu		: sv48
+mvendorid	: 0x489
+marchid		: 0x8000000000000008
+mimpid		: 0x6220425
+processor	: 1
+hart		: 1
+mmu		: sv48
+mvendorid	: 0x489
+marchid		: 0x8000000000000008
+mimpid		: 0x6220425
+核数: 4
+
+--- 必需扩展检查（REQUIRED=i,m,a,f,d,c）---
+  扩展 i : 有 ✓
+EXTSTATE_i=present
+  扩展 m : 有 ✓
+EXTSTATE_m=present
+  扩展 a : 有 ✓
+EXTSTATE_a=present
+  扩展 f : 有 ✓
+EXTSTATE_f=present
+  扩展 d : 有 ✓
+EXTSTATE_d=present
+  扩展 c : 有 ✓
+EXTSTATE_c=present
+
+ISA=rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf
+结果: PASS
+CPUINFO_STATUS=PASS
