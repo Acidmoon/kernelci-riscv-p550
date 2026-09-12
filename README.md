@@ -29,7 +29,7 @@ vector 因无 V 扩展按设计记 `SKIP`）。证据：[results/2026-09-12-boot
 ## 目录结构
 
 ```
-docs/     上板 runbook、跨平台扩展矩阵、SOW 阶段映射
+docs/     上板 runbook、跨平台扩展矩阵、SOW 阶段映射、进度汇报（progress-2026-09-12.md）
 tests/    板子侧脚本（身份/扩展/启动链/向量/hypervisor）；含两个可脱离硬件跑的自检
           （板上没有 gcc，需要编译的测试在本机交叉编译后同步）
 scripts/  本机侧流水线（一键测试、趋势表）、交叉编译（KVM/kselftest）与接入助手
