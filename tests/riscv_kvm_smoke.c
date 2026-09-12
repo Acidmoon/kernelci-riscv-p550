@@ -171,6 +171,23 @@ int main(void) {
         printf("  guest ISA 位图(原始值): %#llx（厂商内核语义待确认，不做名字解码）\n",
                (unsigned long long)val);
 
+    /* 用 config 里的身份字段自检偏移假设: 若与 /proc/cpuinfo 的 mvendorid 等一致，
+     * 说明我们的 struct/offset 假设正确 → 上面读到的 0 号字段确实是 `isa`。
+     * 这是"不做名字解码"但也不乱猜的关键验证。 */
+    {
+        static const struct { int reg; const char *name; } idregs[] = {
+            {2, "mvendorid"}, {3, "marchid"}, {4, "mimpid"},
+        };
+        for (size_t k = 0; k < sizeof(idregs) / sizeof(idregs[0]); k++) {
+            uint64_t idv = 0;
+            oreg.id = P550_CONFIG_REGID(idregs[k].reg * sizeof(unsigned long));
+            oreg.addr = (uint64_t)(uintptr_t)&idv;
+            if (ioctl(vcpufd, KVM_GET_ONE_REG, &oreg) == 0)
+                printf("  guest %-9s : %#llx\n", idregs[k].name, (unsigned long long)idv);
+        }
+        printf("  （与板上 /proc/cpuinfo 的 mvendorid/marchid/mimpid 对照可验证偏移假设）\n");
+    }
+
     printf("  KVM_RUN ...\n");
     if (ioctl(vcpufd, KVM_RUN, 0) < 0) return fail("KVM_RUN");
 

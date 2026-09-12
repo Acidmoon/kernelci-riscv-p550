@@ -1,0 +1,80 @@
+===== 内核命令行 =====
+BOOT_IMAGE=/boot/vmlinuz-6.6.92-2025-eic7700 root=UUID=9e29d36a-a99b-46d7-9388-c76cf6f49be6 ro efi=noruntime earlycon=sbi earlycon=sbi console=ttyS0,115200n8 clk_ignore_unused cma_pernuma=0x2000000 disable_bypass=false firmware_class.path=/lib/firmware/eic7x/
+
+===== 设备树 model / compatible =====
+SiFive HiFive Premier P550
+eswin,eic7x
+
+===== 固件层 =====
+EFI 变量表: yes
+efivars 条目: 0
+/sys/firmware/efi/fw_platform_size: 64
+
+===== 引导器 / 固件相关内核日志 =====
+Jul 11 18:53:00 ubuntu kernel: Machine model: SiFive HiFive Premier P550
+Jul 11 18:53:00 ubuntu kernel: efi: EFI v2.10 by Das U-Boot
+Jul 11 18:53:00 ubuntu kernel: efi: RTPROP=0xe9cca040 SMBIOS=0xe9cef000 INITRD=0xe445d040 MEMRESERVE=0xe445c040 
+Jul 11 18:53:00 ubuntu kernel: Reserved memory: created mmz_nid_0_part_0 eswin reserve memory at 0x0000000300000000, size 6144 MiB
+Jul 11 18:53:00 ubuntu kernel: OF: reserved mem: initialized node mmz_nid_0_part_0, compatible id eswin-reserve-memory
+Jul 11 18:53:00 ubuntu kernel: Kernel command line: BOOT_IMAGE=/boot/vmlinuz-6.6.92-2025-eic7700 root=UUID=9e29d36a-a99b-46d7-9388-c76cf6f49be6 ro efi=noruntime earlycon=sbi earlycon=sbi console=ttyS0,115200n8 clk_ignore_unused cma_pernuma=0x2000000 disable_bypass=false firmware_class.path=/lib/firmware/eic7x/
+Jul 11 18:53:00 ubuntu kernel: EFI runtime services will be disabled.
+Jul 11 18:53:00 ubuntu kernel: eswin-reset 51828000.sys-crg:reset-controller: device is not dma coherent
+Jul 11 18:53:00 ubuntu kernel: eswin-reset 51828000.sys-crg:reset-controller: device is not behind an iommu
+Jul 11 18:53:00 ubuntu kernel: eswin-pinctrl 51600080.pinctrl: device is not dma coherent
+Jul 11 18:53:00 ubuntu kernel: eswin-pinctrl 51600080.pinctrl: device is not behind an iommu
+Jul 11 18:53:00 ubuntu kernel: eswin-pinctrl 51600080.pinctrl: eswin pinctrl initialized
+Jul 11 18:53:00 ubuntu kernel: eswin-noc-wdt 51810000.scu_sys_con:noc@51810324: device is not dma coherent
+Jul 11 18:53:00 ubuntu kernel: eswin-noc-wdt 51810000.scu_sys_con:noc@51810324: device is not behind an iommu
+Jul 11 18:53:00 ubuntu kernel: eswin-clock 51828000.sys-crg:clock-controller: device is not dma coherent
+Jul 11 18:53:00 ubuntu kernel: eswin-clock 51828000.sys-crg:clock-controller: device is not behind an iommu
+Jul 11 18:53:00 ubuntu kernel: eswin-clock 51828000.sys-crg:clock-controller: CPU frequency set to 1400000000 Hz
+Jul 11 18:53:00 ubuntu kernel: eswin-dsp-subsys 52280400.dsp_subsys: device is not dma coherent
+Jul 11 18:53:00 ubuntu kernel: eswin-dsp-subsys 52280400.dsp_subsys: device is not behind an iommu
+Jul 11 18:53:00 ubuntu kernel: eswin-dsp-subsys 52280400.dsp_subsys: es_dsp_subsys_probe
+Jul 11 18:53:00 ubuntu kernel: ESWIN OTP debugfs initialized
+Jul 11 18:53:00 ubuntu kernel: eswin-pmu 51808000.power-controller: device is not dma coherent
+Jul 11 18:53:00 ubuntu kernel: eswin-pmu 51808000.power-controller: device is not behind an iommu
+Jul 11 18:53:00 ubuntu kernel: eswin-pmu 51808000.power-controller: start registe power domains
+Jul 11 18:53:00 ubuntu kernel: eswin-pmu 51808000.power-controller: pm domain [D0_PCIE] was already in power on state.
+
+===== 根文件系统与引导介质 =====
+/dev/mmcblk0p3 ext4   rw,relatime
+NAME           SIZE TYPE FSTYPE   PARTLABEL  MOUNTPOINT
+loop0           44M loop squashfs            /snap/snapd/25206
+loop1         43.6M loop squashfs            /snap/snapd/27745
+mmcblk0      116.5G disk                     
+|-mmcblk0p1    100M part vfat     EFI System /boot/efi
+|-mmcblk0p2      4M part vfat     CIDATA     
+`-mmcblk0p3  116.4G part ext4     root       /
+mmcblk0boot0     4M disk                     
+mmcblk0boot1     4M disk                     
+
+===== /boot 内容（引导件线索）=====
+System.map-6.6.92-2025-eic7700
+boot.scr
+config-6.6.92-2025-eic7700
+dtb
+dtb-6.6.92-2025-eic7700
+dtbs
+efi
+grub
+initrd.img
+initrd.img-6.6.92-2025-eic7700
+initrd.img.old
+vmlinuz
+vmlinuz-6.6.92-2025-eic7700
+vmlinuz.old
+
+===== 内存布局（真机专有）=====
+00000000-00000000 : Reserved
+00000000-00000000 : Reserved
+  00000000-00000000 : Reserved
+00000000-00000000 : Reserved
+  00000000-00000000 : Reserved
+  00000000-00000000 : Reserved
+  00000000-00000000 : Reserved
+  00000000-00000000 : Reserved
+  00000000-00000000 : Reserved
+  00000000-00000000 : Reserved
+
+BOOTCHAIN_STATUS=PASS

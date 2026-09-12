@@ -44,13 +44,13 @@ fi
 mkdir -p "$OUT"
 
 FILES="lib-isa.sh riscv-cpuinfo.sh riscv-ext-scan.sh p550-board-info.sh p550-bootchain.sh \
-p550-vector.sh riscv-hypervisor.sh riscv-kselftest.sh \
+p550-vector.sh riscv-hypervisor.sh riscv-kselftest.sh riscv-hwprobe.sh \
 riscv_vector_add.c riscv_vector_bench.c"
 
 # 需要在本机交叉编译后同步到板子的二进制（板子上没有 gcc）
 HOST_CC=${HOST_CC:-riscv64-linux-gnu-gcc}
 KERNEL_TREE=${KERNEL_TREE:-}   # 设置后会自动交叉编译 riscv kselftest
-HOST_BINS="riscv_kvm_smoke"
+HOST_BINS="riscv_kvm_smoke riscv_hwprobe_dump"
 
 fail() { echo "FAIL: $1"; exit 2; }
 
@@ -221,6 +221,11 @@ KS_PASS=$(grep -m1 '^KSELFTEST_PASS=' "$OUT/kselftest.log" 2>/dev/null | cut -d=
 KS_FAIL=$(grep -m1 '^KSELFTEST_FAIL=' "$OUT/kselftest.log" 2>/dev/null | cut -d= -f2)
 KS_SKIP=$(grep -m1 '^KSELFTEST_SKIP=' "$OUT/kselftest.log" 2>/dev/null | cut -d= -f2)
 
+echo "--- [3.9] hwprobe（riscv_hwprobe(2) 权威探针 + 与 isa 交叉验证）---"
+remote hwprobe.log "cd $TESTS_DIR && bash riscv-hwprobe.sh"
+HW_STATUS=$(log_status "$OUT/hwprobe.log" '^HWPROBE_STATUS=PASS' '^HWPROBE_STATUS=SKIP')
+HW_MISMATCH=$(grep -m1 '^HWPROBE_MISMATCH=' "$OUT/hwprobe.log" 2>/dev/null | cut -d= -f2)
+
 if [ "$DRY_RUN" = 1 ]; then
   echo "========== [dry-run] 结束（未写归档、未更新趋势）=========="
   exit 0
@@ -233,7 +238,8 @@ ROOTDEV=$(grep -m1 '^ROOTDEV=' "$OUT/board-info.log" 2>/dev/null | cut -d= -f2-)
 
 if python3 - "$OUT" "$INFO_STATUS" "$CPU_STATUS" "$EXT_STATUS" "$VEC_STATUS" \
   "$BENCH_STATUS" "$BENCH_MS" "$BOOT_STATUS" "$HYPER_STATUS" "$KS_STATUS" \
-  "${KS_PASS:-0}" "${KS_FAIL:-0}" "${KS_SKIP:-0}" "$MODEL" "$ISA" "$ROOTDEV" \
+  "${KS_PASS:-0}" "${KS_FAIL:-0}" "${KS_SKIP:-0}" "$HW_STATUS" "${HW_MISMATCH:-0}" \
+  "$MODEL" "$ISA" "$ROOTDEV" \
   "$HAS_H" "$HAS_V" "$HAS_ZPM" <<'PY'
 import json
 import os
@@ -249,9 +255,10 @@ def _int(x):
 
 
 (out, info, cpu, ext, vec, bench, bench_ms, boot, hyper, ks_status,
- ks_pass, ks_fail, ks_skip, model, isa, rootdev, h, v, zpm) = sys.argv[1:20]
+ ks_pass, ks_fail, ks_skip, hw_status, hw_mismatch, model, isa, rootdev,
+ h, v, zpm) = sys.argv[1:22]
 
-statuses = [info, cpu, ext, vec, bench, boot, hyper, ks_status]
+statuses = [info, cpu, ext, vec, bench, boot, hyper, ks_status, hw_status]
 overall = "FAIL" if any(s == "FAIL" for s in statuses) else "PASS"
 
 res = {
@@ -271,6 +278,7 @@ res = {
         "vector_bench": {"status": bench, "ms": bench_ms or None},
         "bootchain": boot,
         "hypervisor": hyper,
+        "hwprobe": {"status": hw_status, "mismatch": _int(hw_mismatch)},
         "kselftest": {
             "status": ks_status,
             "pass": _int(ks_pass),
@@ -294,8 +302,8 @@ fi
 echo "========== [5] VERDICT =========="
 if [ "$INFO_STATUS" = PASS ] && [ "$CPU_STATUS" = PASS ] && [ "$EXT_STATUS" = PASS ] \
   && [ "$VEC_STATUS" != FAIL ] && [ "$BENCH_STATUS" != FAIL ] && [ "$BOOT_STATUS" = PASS ] \
-  && [ "$HYPER_STATUS" != FAIL ] && [ "$KS_STATUS" != FAIL ]; then
-  echo "OVERALL: PASS（vector=$VEC_STATUS, bench=$BENCH_STATUS, hypervisor=$HYPER_STATUS, kselftest=${KS_PASS:-0}P/${KS_FAIL:-0}F/${KS_SKIP:-0}S）"
+  && [ "$HYPER_STATUS" != FAIL ] && [ "$KS_STATUS" != FAIL ] && [ "$HW_STATUS" != FAIL ]; then
+  echo "OVERALL: PASS（vector=$VEC_STATUS, hypervisor=$HYPER_STATUS, kselftest=${KS_PASS:-0}P/${KS_FAIL:-0}F/${KS_SKIP:-0}S, hwprobe=$HW_STATUS/不一致${HW_MISMATCH:-0}）"
   echo "归档: $OUT"
   VERDICT=0
 else

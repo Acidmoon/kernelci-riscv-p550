@@ -1,0 +1,48 @@
+===== uname =====
+Linux ubuntu 6.6.92-2025-eic7700 #07 SMP Mon Sep  1 04:17:25 UTC 2025 riscv64 riscv64 riscv64 GNU/Linux
+
+===== 发行版 =====
+PRETTY_NAME="Ubuntu 24.04.3 LTS"
+VERSION_ID="24.04"
+ID=ubuntu
+
+===== 板卡身份（设备树）=====
+model:      SiFive HiFive Premier P550
+compatible: eswin,eic7x
+
+===== 引导链 / 固件 =====
+EFI stub 启动(UEFI 变量表存在): yes
+内核命令行: BOOT_IMAGE=/boot/vmlinuz-6.6.92-2025-eic7700 root=UUID=9e29d36a-a99b-46d7-9388-c76cf6f49be6 ro efi=noruntime earlycon=sbi earlycon=sbi console=ttyS0,115200n8 clk_ignore_unused cma_pernuma=0x2000000 disable_bypass=false firmware_class.path=/lib/firmware/eic7x/
+/sys/firmware 内容: devicetree efi fdt 
+chosen/bootargs: BOOT_IMAGE=/boot/vmlinuz-6.6.92-2025-eic7700 root=UUID=9e29d36a-a99b-46d7-9388-c76cf6f49be6 ro efi=noruntime earlycon=sbi
+
+===== 存储 =====
+NAME           SIZE TYPE FSTYPE   MOUNTPOINT
+loop0           44M loop squashfs /snap/snapd/25206
+loop1         43.6M loop squashfs /snap/snapd/27745
+mmcblk0      116.5G disk          
+|-mmcblk0p1    100M part vfat     /boot/efi
+|-mmcblk0p2      4M part vfat     
+`-mmcblk0p3  116.4G part ext4     /
+mmcblk0boot0     4M disk          
+mmcblk0boot1     4M disk          
+
+===== 内存 / CPU =====
+               total        used        free      shared  buff/cache   available
+Mem:           9.6Gi       1.4Gi       7.5Gi        12Mi       890Mi       8.3Gi
+nproc: 4
+
+===== 首次启动痕迹 =====
+cloud-init: status: done
+开机时长: up 1 hour, 4 minutes
+
+MODEL=SiFive HiFive Premier P550
+COMPATIBLE=eswin,eic7x
+KERNEL=6.6.92-2025-eic7700
+OS=Ubuntu 24.04.3 LTS
+OS_ID=ubuntu
+ROOTDEV=/dev/mmcblk0p3
+MEM=9.6Gi
+NPROC=4
+EFI=yes
+BOARDINFO_STATUS=PASS

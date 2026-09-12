@@ -102,10 +102,26 @@ P550 的厂商内核**编译时开启了一些硬件并不具备的扩展支持*
 **硬件实现差异（值得记录）**：`VMID 0 bits available` 表示 hgatp 的 VMID 字段宽度为 0，
 即没有 VMID 标记能力；G-stage 页表格式为 `Sv48x4`。
 
-**未解疑点**：`KVM_GET_ONE_REG` 读到的 guest ISA 位图原始值为 `0x112d`，
-按上游 v6.6 枚举会解成 A/D/F/I/Sstc/Zicboz —— 但硬件有 `zba`/`zbb`、没有 `zicboz`，
-说明该厂商内核的枚举顺序或位图语义与上游不一致。测试程序因此**只打印原始值、不做名字解码**，
-列为待查项（可对照板上内核源码 `arch/riscv/include/uapi/asm/kvm.h`）。
+**guest ISA 位图疑点（已收敛到"厂商枚举不同"，非读取错误）**：
+`KVM_GET_ONE_REG` 读到的 guest ISA 位图原始值为 `0x112d`。按上游 v6.6 的
+`KVM_RISCV_ISA_EXT_*` 枚举会解成 A/D/F/I/Sstc/Zicboz，但本机**两路独立证据**
+（`/proc/cpuinfo` 的 `isa` 与 `riscv_hwprobe(2)` 的 `IMA_EXT_0`）都表明硬件**没有 Sstc/Zicboz、有 Zba/Zbb**。
+
+为了排除"读错偏移"这种可能，测试里加了**自检**：读同一个 `struct kvm_riscv_config` 的
+mvendorid/marchid/mimpid（偏移 2/3/4），实测得到
+
+```
+guest mvendorid : 0x489
+guest marchid   : 0x8000000000000008
+guest mimpid    : 0x6220425
+```
+
+与主机的 `0x489 / 0x8000000000000008 / 0x6220425` **完全一致** → 偏移假设成立 →
+偏移 0 确实是 `isa`，`0x112d` 是权威值。
+
+结论：**该厂商内核（6.6.92-eic7700）的 KVM ISA 枚举顺序或位图语义与上游 v6.6 不一致**。
+因此测试程序只报原始值、不做名字解码；要彻底定案需读该厂商内核源码里的
+`arch/riscv/include/uapi/asm/kvm.h`（板上没有这个头文件，只有 `linux/kvm.h`）。
 
 ## 6. 性能
 
@@ -115,7 +131,39 @@ P550 的厂商内核**编译时开启了一些硬件并不具备的扩展支持*
 | **hypervisor（KVM 冒烟测试）** | **PASS**（客户机在真机 H 上执行） | 不可行（无 H） | 可运行（模拟） |
 | kselftest（riscv 子集） | **3 pass / 0 fail / 4 skip** | 待板子内核升级 | **9 pass / 0 skip / 1 xfail**（全量） |
 
-## 7. kselftest 对照（同源码、同口径）
+## 7. 权威探针：`riscv_hwprobe(2)`（真机实测）
+
+`/proc/cpuinfo` 的 `isa` 是**内核汇总出来的字符串**；`riscv_hwprobe(2)` 才是内核提供给用户态的
+**权威结构化**能力接口（机器可读、且能给出 isa 字符串给不出的信息）。两者交叉验证结果：
+
+| hwprobe 项 | P550 实测值 |
+|---|---|
+| `MVENDORID` / `MARCHID` / `MIMPID` | `0x489` / `0x8000000000000008` / `0x6220425`（与 cpuinfo 完全一致 ✓） |
+| `BASE_BEHAVIOR` | `0x1` → IMA 基线存在 |
+| `IMA_EXT_0` | **`0x1b`** = FD \| C \| Zba \| Zbb |
+| `CPUPERF_0` | 非对齐访问 = **slow** |
+| key 6..16（Zicboz 块大小 / 最高虚拟地址 / TIME CSR 频率 / 非对齐标量性能 / IMA_EXT_1 …） | 全部返回 **0** |
+
+**交叉验证（同一份流水线自动执行）**：17 个扩展在 hwprobe 与 cpuinfo 之间**全部一致，0 处不一致**。
+
+**三条方法学结论（都来自实测）**：
+
+1. **hwprobe 不覆盖 H**。Hypervisor 是特权扩展，不在 `IMA_EXT_0` 里 →
+   **H 的结论只能来自设备树/cpuinfo**。两者是互补关系，不能互相替代。
+2. **本板厂商内核与上游约定有一处偏差**：上游规定"未定义的 key 返回 -1"，
+   而本板 6.6.92 内核对 key 6..16 一律返回 **0** →
+   在这台板子上**不能靠 `-1` 判断某个 key 是否被支持**。这是真实可复现的行为差异。
+3. **一个 hwprobe 位可能对应多个 cpuinfo 字母**：`IMA_FD` 位 = `f` + `d` 都有。
+   我第一版比较逻辑直接拿 `"fd"` 去 isa 里找 → 误报"配置漂移"；修正为显式映射后 0 不一致。
+   （这条也说明：**交叉验证脚本本身要有自检**，否则会制造假警报。）
+
+复现：
+
+```bash
+bash scripts/run-board-tests.sh        # [3.9] hwprobe 步骤自动跑探针 + 交叉验证
+```
+
+## 8. kselftest 对照（同源码、同口径）
 
 同一套 kselftest 源码（本机内核树 v7.2-rc7）交叉编译后在 P550 真机运行；
 QEMU 侧基线来自同事的 v7.2-rc7 全量运行。
@@ -147,7 +195,7 @@ KERNEL_TREE=/path/to/linux bash scripts/build-kselftest.sh   # 本机交叉编�
 KERNEL_TREE=/path/to/linux bash scripts/run-board-tests.sh   # 自动同步 + 板上运行 + 归档
 ```
 
-## 8. 复现方式
+## 9. 复现方式
 
 ```bash
 bash scripts/run-board-tests.sh          # 一条命令：同步→采集→归档→verdict→趋势表

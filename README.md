@@ -118,6 +118,7 @@ sudo cp udev/99-p550-serial.rules /etc/udev/rules.d/ && sudo udevadm control --r
 | 启动链/固件证据 | `tests/p550-bootchain.sh` | 输出 `BOOTCHAIN_STATUS=PASS` |
 | **真机 Hypervisor（H/KVM）** | `tests/riscv-hypervisor.sh` + `tests/riscv_kvm_smoke.c` | 无 h / 无 `/dev/kvm` → **SKIP**；客户机起不来 → FAIL；产生预期 MMIO 退出 → PASS |
 | **riscv kselftest 子集** | `tests/riscv-kselftest.sh` + `scripts/build-kselftest.sh` | 缺 V/ZPM 的用例按平台能力 **SKIP**；其余按 TAP 结果判 PASS/FAIL |
+| **`riscv_hwprobe(2)` 权威探针** | `tests/riscv-hwprobe.sh` + `tests/riscv_hwprobe_dump.c` | 与 `/proc/cpuinfo` 的 `isa` 逐项交叉验证，不一致数记入 `hwprobe.mismatch` |
 
 > `SKIP` 语义：平台合理缺失（例如 P550 若不带 V）记为 SKIP 而不是 FAIL，
 > 趋势表同时呈现"通过率"和"能力差异"。详见 [results/README.md](results/README.md)。

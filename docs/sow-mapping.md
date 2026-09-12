@@ -47,7 +47,7 @@ SOW: [riscv-admin/dev-partners#49 — KernelCI: Statement of Work](https://githu
 
 - [x] **真机 Hypervisor/KVM 测试**：`modprobe kvm` + 一次性配置后，客户机在 H 扩展上真实执行（PASS）
 - [x] **板上跑 riscv kselftest 子集**（3P/0F/4S）：`hwprobe` 真机 PASS；缺 V/ZPM 的 4 个用例按平台能力 SKIP（与 QEMU 的 9P/0S/1X 同口径对照）
-- [ ] 接入 `riscv_hwprobe(2)` 权威探针（与 `/proc/cpuinfo` 的 `isa` 交叉验证）
+- [x] **接入 `riscv_hwprobe(2)` 权威探针**：`IMA_EXT_0=0x1b`、非对齐访问=slow；与 cpuinfo 交叉验证 17 项全一致；并发现"厂商内核对未定义 key 返回 0"这一行为差异
 - [ ] Phase 3：向 KernelCI 上游提交 RISC-V test profile（Maestro/kci-dev 路径）
 - [ ] 后期 lab 化：串口按 `/dev/serial/by-id/` 固定 + MCU 电源控制 + LAVA device-type（参考 RISE RP012 / Collabora 的公开文档）
 - [ ] Phase 4：补博客草稿与 demo 脚本

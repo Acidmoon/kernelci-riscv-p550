@@ -1,0 +1,101 @@
+== riscv_hwprobe(2) 权威能力探针 ==
+  MVENDORID : 0x489
+  MARCHID   : 0x8000000000000008
+  MIMPID    : 0x6220425
+  BASE_BEHAVIOR: 0x1（IMA 基线 ✓）
+  IMA_EXT_0 : 0x1b
+  CPUPERF_0 : 非对齐访问=slow
+
+  --- 原始键值表（key: value；内核未定义的 key 为 -1）---
+  key 0  : 0x489
+  key 1  : 0x8000000000000008
+  key 2  : 0x6220425
+  key 3  : 0x1
+  key 4  : 0x1b
+  key 5  : 0x2
+  key 6  : 0
+  key 7  : 0
+  key 8  : 0
+  key 9  : 0
+  key 10 : 0
+  key 11 : 0
+  key 12 : 0
+  key 13 : 0
+  key 14 : 0
+  key 15 : 0
+  key 16 : 0
+
+  --- 补充信息 ---
+  Zicboz 块大小   : 0
+  Zicbom 块大小   : 0
+  最高虚拟地址    : 0
+  TIME CSR 频率   : 0
+  非对齐标量性能  : unknown
+  非对齐向量性能  : unknown
+  IMA_EXT_1       : 0
+
+  --- IMA_EXT_0 解码（用户态可见扩展）---
+  fd           present  FD（单/双精度浮点）
+HWPROBE_EXT_fd=present
+  c            present  C（压缩指令）
+HWPROBE_EXT_c=present
+  v            absent  V（向量）
+HWPROBE_EXT_v=absent
+  zba          present  Zba
+HWPROBE_EXT_zba=present
+  zbb          present  Zbb
+HWPROBE_EXT_zbb=present
+  zbs          absent  Zbs
+HWPROBE_EXT_zbs=absent
+  zicboz       absent  Zicboz
+HWPROBE_EXT_zicboz=absent
+  zbc          absent  Zbc
+HWPROBE_EXT_zbc=absent
+  zbkb         absent  Zbkb
+HWPROBE_EXT_zbkb=absent
+  zbkc         absent  Zbkc
+HWPROBE_EXT_zbkc=absent
+  zbkx         absent  Zbkx
+HWPROBE_EXT_zbkx=absent
+  zfh          absent  Zfh
+HWPROBE_EXT_zfh=absent
+  zihintntl    absent  Zihintntl
+HWPROBE_EXT_zihintntl=absent
+  ztso         absent  Ztso
+HWPROBE_EXT_ztso=absent
+  zacas        absent  Zacas
+HWPROBE_EXT_zacas=absent
+  zicond       absent  Zicond
+HWPROBE_EXT_zicond=absent
+  zihintpause  absent  Zihintpause
+HWPROBE_EXT_zihintpause=absent
+  zicbom       absent  Zicbom
+HWPROBE_EXT_zicbom=absent
+  zicbop       absent  Zicbop
+HWPROBE_EXT_zicbop=absent
+
+HWPROBE_STATUS=PASS
+
+== 交叉验证: hwprobe vs /proc/cpuinfo isa ==
+  cpuinfo isa: rv64imafdch_zicntr_zicsr_zifencei_zihpm_zba_zbb_sscofpmf
+  [不一致] fd         hwprobe=present cpuinfo=absent   ← 配置漂移，需追查
+  [一致] c            hwprobe=present cpuinfo=present
+  [一致] v            hwprobe=absent  cpuinfo=absent
+  [一致] zba          hwprobe=present cpuinfo=present
+  [一致] zbb          hwprobe=present cpuinfo=present
+  [一致] zbs          hwprobe=absent  cpuinfo=absent
+  [一致] zbc          hwprobe=absent  cpuinfo=absent
+  [一致] zbkb         hwprobe=absent  cpuinfo=absent
+  [一致] zicboz       hwprobe=absent  cpuinfo=absent
+  [一致] zicbom       hwprobe=absent  cpuinfo=absent
+  [一致] zicbop       hwprobe=absent  cpuinfo=absent
+  [一致] zicond       hwprobe=absent  cpuinfo=absent
+  [一致] zacas        hwprobe=absent  cpuinfo=absent
+  [一致] ztso         hwprobe=absent  cpuinfo=absent
+  [一致] zfh          hwprobe=absent  cpuinfo=absent
+  [一致] zihintpause  hwprobe=absent  cpuinfo=absent
+  [一致] zihintntl    hwprobe=absent  cpuinfo=absent
+  不一致项: 1
+  （H 不在此列：hwprobe 不覆盖特权扩展，见本脚本头部说明）
+HWPROBE_MISMATCH=1
+HWPROBE_STATUS=PASS
