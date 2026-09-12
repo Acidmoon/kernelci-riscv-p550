@@ -114,7 +114,8 @@ JSON payload must contain at least 'checkouts' or 'builds'
 
 ## 2.5 我们产出的上游可行动发现
 
-见 [`upstream-findings.md`](upstream-findings.md)：**只有在真机上跑才会暴露**的 5 条问题/行为差异，
+见 [`upstream-findings.md`](upstream-findings.md)：**真机跑出来的** 5 条问题/行为差异，
+其中发现 1/2 已做到**无硬件复现**（`scripts/repro-upstream-findings.sh`，用 QEMU 用户态 `-cpu rv64,v=false`），
 其中 2 条是源码级确认可修的 kselftest 缺陷（`riscv/sigreturn` 无 V 门控 → 无 V 平台 SIGILL；
 两个 nolibc 向量测试用 `exit(-1)` 而非 `KSFT_SKIP=4`）。按约定**只准备材料、未提 PR**。
 

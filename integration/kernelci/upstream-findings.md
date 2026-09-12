@@ -6,6 +6,10 @@
 > 采集环境：SiFive HiFive Premier P550（ESWIN EIC7700 / 4×P550），Ubuntu 24.04.3 LTS，
 > 厂商内核 `6.6.92-2025-eic7700`；kselftest 源码来自本机内核树 v7.2-rc7。
 > 原始输出：`results/history/20260912-163259/`（CI 跑的那次）与 `results/history/20260912-170013/`。
+>
+> **发现 1 / 2 已经做到"无硬件复现"**（见文末第 5 节）：用 QEMU 用户态模拟器
+> `-cpu rv64,v=false` 在本机秒级造出无 V 平台，输出与 P550 真机**逐字一致** ——
+> 等于拿到了"真硅 + 模拟器"两个独立平台的交叉验证，且上游任何人都能复跑。
 
 ---
 
@@ -156,5 +160,54 @@ guest mimpid    : 0x6220425
 | 喂给 KernelCI 的 test profile | 发现 3 已经是我们的 profile 断言（`riscv-hwprobe` 交叉验证） |
 | 记录在案 | 发现 4、5 属于厂商内核行为差异，先记录、需要时向 ESWIN/社区求证 |
 
-**诚实声明**：发现 4、5 只在一台厂商内核上观测到，样本为 1；发现 1、2 是源码级确认 + 真机复现，
-可用 `qemu-system-riscv64 -cpu rv64,v=false` 在虚拟化目标上复跑验证（我们已验证 QEMU 接受该属性）。
+---
+
+## 5. 无硬件复现（推荐给上游的复现方式）
+
+发现 1 / 2 **不需要真机**就能复现。做法：编一个 QEMU **用户态**模拟器，用 `-cpu` 关掉 V。
+
+```bash
+# 1) 编用户态模拟器（不需要 sudo、不需要 rootfs、不需要启动虚拟机；约 2-3 分钟）
+mkdir -p ~/qemu-user-build && cd ~/qemu-user-build
+/path/to/qemu-src/configure --target-list=riscv64-linux-user --disable-system --disable-docs
+ninja                                   # 产出 ./qemu-riscv64
+
+# 2) 交叉编译 kselftest（板上没有 gcc）
+cd /path/to/kernelci-riscv-p550
+KERNEL_TREE=/path/to/linux bash scripts/build-kselftest.sh
+
+# 3) 一键复现
+QEMU_RISCV64=~/qemu-user-build/qemu-riscv64 bash scripts/repro-upstream-findings.sh
+```
+
+实测输出（`REPRO_STATUS=PASS`）：
+
+```
+--- 有 V 的对照（-cpu rv64,v=true）---
+  sigreturn（应能运行，不 SIGILL）                      exit=1    ✓
+--- 无 V（-cpu rv64,v=false）---
+  sigreturn（发现 1：应 SIGILL）                        exit=1    ✓ 匹配 "signal 4"
+  vstate_exec_nolibc（发现 2：应 exit 255 而非 SKIP=4） exit=255  ✓
+  v_exec_initval_nolibc 退出码 = 132（128+4 = SIGILL）            ✓
+```
+
+无 V 下 `sigreturn` 的原文输出，与 P550 真机上**逐字一致**：
+
+```
+# vector_restore: Test terminated unexpectedly by signal 4
+not ok 1 global.vector_restore
+# vector_restore_signal_handler_override: Test terminated unexpectedly by signal 4
+not ok 2 global.vector_restore_signal_handler_override
+# FAILED: 0 / 2 tests passed.
+```
+
+> 注：有 V 的对照里第 2 个子测试在 **qemu-user** 下会以 `bad vector magic: 64697272` 失败
+> —— 这是 qemu 用户态与真实内核在信号帧布局上的差异，**不是**本发现关心的部分；
+> 本发现只关心"无 V 时是否 SIGILL 而非 SKIP"，这一点两个平台结论一致。
+
+---
+
+**诚实声明**：
+- 发现 **1、2**：源码级确认 + **真机与 QEMU 用户态双平台复现**，可直接上报。
+- 发现 **3**：配置与运行时能力均为实测，方法学结论可靠（样本 1 台）。
+- 发现 **4、5**：只在 1 台厂商内核上观测到，样本为 1，需向 ESWIN/社区求证后再断言。
