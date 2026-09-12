@@ -47,6 +47,9 @@ jobs:
           ssh -o ConnectTimeout=5 -o BatchMode=yes p550 'echo OK' \
             || { echo "::error::ssh p550 不通。检查 docs/p550-bringup.md 的串口/共享网络/别名三件事"; exit 1; }
       - name: Run full board tests
+        env:
+          # 设了它才会在真机跑 riscv kselftest（板上没有 gcc，需本机交叉编译）
+          KERNEL_TREE: ${{ vars.KERNEL_TREE }}
         run: bash scripts/run-board-tests.sh
       - name: Update regression trend
         if: always()
