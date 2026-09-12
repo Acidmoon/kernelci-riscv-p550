@@ -35,7 +35,8 @@ tests/    板子侧脚本（身份/扩展/启动链/向量/hypervisor）；含�
 scripts/  本机侧流水线（一键测试、趋势表）、交叉编译（KVM/kselftest）与接入助手
 udev/     让 ModemManager 忽略 P550 串口的规则（解决串口 Device or resource busy）
 profile/  RISC-V 扩展测试 profile（机器可读的期望值 + 漂移检测，SOW Phase 3 的交付物实体）
-integration/kernelci/  Phase 3 集成工作区：KCIDB 报告生成与上游 Maestro 配置草案（尚未提 PR）
+integration/kernelci/  Phase 3 集成工作区：KCIDB 报告生成、Maestro 配置草案、
+                       以及 upstream-findings.md（真机才暴露的上游问题，尚未提 PR）
 .github/  CI（云端 lint + dry-run；自托管 runner 跑真机）
 results/  运行存档（history/ 自动归档 + trend.md 趋势表）
 ```
