@@ -3,47 +3,19 @@
     "major": 5,
     "minor": 3
   },
-  "checkouts": [
-    {
-      "id": "p550-lab:p550-20260912-161648",
-      "origin": "p550-lab",
-      "git_repository_url": "https://github.com/torvalds/linux.git",
-      "git_commit_hash": "",
-      "patchset_hash": "",
-      "start_time": "2026-09-12T16:16:48Z",
-      "misc": {
-        "note": "板子测的是出厂预装内核（ESWIN 厂商内核）；--kernel-commit 未提供时此处为空，真实提交前必须补上或改用 --build-id 走 hybrid 模式",
-        "kernel_version": "6.6.92-2025-eic7700",
-        "root_device": "/dev/mmcblk0p3"
-      }
-    }
-  ],
-  "builds": [
-    {
-      "id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
-      "origin": "p550-lab",
-      "checkout_id": "p550-lab:p550-20260912-161648",
-      "architecture": "riscv",
-      "config_name": "eswin-vendor-defconfig",
-      "compiler": "eswin-vendor",
-      "status": "PASS",
-      "start_time": "2026-09-12T16:16:48Z",
-      "misc": {
-        "note": "本流水线不构建内核，这是对预装内核运行结果的一次性 build 包装"
-      }
-    }
-  ],
   "tests": [
     {
-      "id": "p550-lab:20260912-161648:board-info.identity",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:board-info.identity",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "board-info.identity",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -60,19 +32,21 @@
       },
       "misc": {
         "source_test": "board_info",
-        "archive": "20260912-161648"
+        "archive": ""
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-cpuinfo.isa-required-extensions",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-cpuinfo.isa-required-extensions",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-cpuinfo.isa-required-extensions",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -89,19 +63,21 @@
       },
       "misc": {
         "source_test": "cpuinfo",
-        "archive": "20260912-161648"
+        "archive": ""
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-ext-scan.matrix",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-ext-scan.matrix",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-ext-scan.matrix",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -118,19 +94,21 @@
       },
       "misc": {
         "source_test": "ext_scan",
-        "archive": "20260912-161648"
+        "archive": ""
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-vector.additive",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-vector.additive",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-vector.additive",
       "status": "SKIP",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -147,19 +125,21 @@
       },
       "misc": {
         "source_test": "vector",
-        "archive": "20260912-161648"
+        "archive": ""
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-vector.bench",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-vector.bench",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-vector.bench",
       "status": "SKIP",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -177,19 +157,21 @@
       "misc": {
         "ms": null,
         "source_test": "vector_bench",
-        "archive": "20260912-161648"
+        "archive": ""
       }
     },
     {
-      "id": "p550-lab:20260912-161648:bootchain.firmware-evidence",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:bootchain.firmware-evidence",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "bootchain.firmware-evidence",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -206,19 +188,21 @@
       },
       "misc": {
         "source_test": "bootchain",
-        "archive": "20260912-161648"
+        "archive": ""
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-hypervisor.kvm-smoke",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-hypervisor.kvm-smoke",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-hypervisor.kvm-smoke",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -235,19 +219,21 @@
       },
       "misc": {
         "source_test": "hypervisor",
-        "archive": "20260912-161648"
+        "archive": ""
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-hwprobe.authoritative-vs-isa",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-hwprobe.authoritative-vs-isa",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-hwprobe.authoritative-vs-isa",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -265,19 +251,21 @@
       "misc": {
         "mismatch": 0,
         "source_test": "hwprobe",
-        "archive": "20260912-161648"
+        "archive": ""
       }
     },
     {
-      "id": "p550-lab:20260912-161648:kselftest",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:kselftest",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "kselftest",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -297,19 +285,21 @@
         "fail": 0,
         "skip": 4,
         "source_test": "kselftest",
-        "archive": "20260912-161648"
+        "archive": ""
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-kselftest.hwprobe",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-kselftest.hwprobe",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-kselftest.hwprobe",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -327,7 +317,7 @@
       "comment": "# Totals: pass:5 fail:0 xfail:0 xpass:0 skip:0 error:0",
       "misc": {
         "source": "kselftest",
-        "archive": "20260912-161648",
+        "archive": "",
         "suite_totals": {
           "pass": 3,
           "fail": 0,
@@ -336,15 +326,17 @@
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-kselftest.mmap_default",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-kselftest.mmap_default",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-kselftest.mmap_default",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -362,7 +354,7 @@
       "comment": "# Totals: pass:1 fail:0 xfail:0 xpass:0 skip:0 error:0",
       "misc": {
         "source": "kselftest",
-        "archive": "20260912-161648",
+        "archive": "",
         "suite_totals": {
           "pass": 3,
           "fail": 0,
@@ -371,15 +363,17 @@
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-kselftest.mmap_bottomup",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-kselftest.mmap_bottomup",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-kselftest.mmap_bottomup",
       "status": "PASS",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -397,7 +391,7 @@
       "comment": "# Totals: pass:1 fail:0 xfail:0 xpass:0 skip:0 error:0",
       "misc": {
         "source": "kselftest",
-        "archive": "20260912-161648",
+        "archive": "",
         "suite_totals": {
           "pass": 3,
           "fail": 0,
@@ -406,15 +400,17 @@
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-kselftest.pointer_masking",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-kselftest.pointer_masking",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-kselftest.pointer_masking",
       "status": "SKIP",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -432,7 +428,7 @@
       "comment": "平台无 zpm 扩展（pointer masking 未实现）",
       "misc": {
         "source": "kselftest",
-        "archive": "20260912-161648",
+        "archive": "",
         "suite_totals": {
           "pass": 3,
           "fail": 0,
@@ -441,15 +437,17 @@
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-kselftest.sigreturn",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-kselftest.sigreturn",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-kselftest.sigreturn",
       "status": "SKIP",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -467,7 +465,7 @@
       "comment": "平台无 v 扩展（该测试需要 RVV，跑下去会 SIGILL）",
       "misc": {
         "source": "kselftest",
-        "archive": "20260912-161648",
+        "archive": "",
         "suite_totals": {
           "pass": 3,
           "fail": 0,
@@ -476,15 +474,17 @@
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-kselftest.vstate_exec_nolibc",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-kselftest.vstate_exec_nolibc",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-kselftest.vstate_exec_nolibc",
       "status": "SKIP",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -502,7 +502,7 @@
       "comment": "平台无 v 扩展（该测试需要 RVV，跑下去会 SIGILL）",
       "misc": {
         "source": "kselftest",
-        "archive": "20260912-161648",
+        "archive": "",
         "suite_totals": {
           "pass": 3,
           "fail": 0,
@@ -511,15 +511,17 @@
       }
     },
     {
-      "id": "p550-lab:20260912-161648:riscv-kselftest.v_exec_initval",
-      "origin": "p550-lab",
-      "build_id": "p550-lab:kernel-6.6.92-2025-eic7700-20260912-161648",
+      "id": "p550_lab:20260912-161648:riscv-kselftest.v_exec_initval",
+      "origin": "p550_lab",
+      "build_id": "p550_lab:kernel-6.6.92-2025-eic7700-20260912-161648",
       "path": "riscv-kselftest.v_exec_initval",
       "status": "SKIP",
       "start_time": "2026-09-12T16:16:48Z",
       "environment": {
-        "compatible": "eswin,eic7x",
-        "description": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
+        "compatible": [
+          "eswin,eic7x"
+        ],
+        "comment": "SiFive HiFive Premier P550 / Ubuntu 24.04.3 LTS / kernel 6.6.92-2025-eic7700",
         "misc": {
           "board_model": "SiFive HiFive Premier P550",
           "board_compatible": "eswin,eic7x",
@@ -537,7 +539,7 @@
       "comment": "平台无 v 扩展（该测试需要 RVV，跑下去会 SIGILL）",
       "misc": {
         "source": "kselftest",
-        "archive": "20260912-161648",
+        "archive": "",
         "suite_totals": {
           "pass": 3,
           "fail": 0,
