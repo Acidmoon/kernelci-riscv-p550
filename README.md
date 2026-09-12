@@ -94,9 +94,9 @@ DRY_RUN=1 bash scripts/run-board-tests.sh
 
 ## CI 接入
 
-- 云端 `lint`：每次 push 跑 `bash -n`、Python 语法检查、以及 `DRY_RUN=1` 的流水线自检（完全不碰板子）。
+- 云端 `lint`：每次 push 跑 `bash -n`、Python 语法检查、ISA 解析自检、假板流水线自检、以及 `DRY_RUN=1` 的流水线自检（完全不碰板子）。
 - 自托管 `board-tests`：在你自己电脑上跑真机全套 → 归档 → 趋势表 → `ci-bot` 提交回仓库。
-- 保险丝：`if: github.repository == 'Acidmoon/kernelci-riscv-p550'`，不监听 PR，防止 fork 借 runner。
+- 门控：`vars.P550_RUNNER == 'ready'` + 仅主仓库（`github.repository`）—— 没注册 runner 之前真机任务不会排队（GitHub 在没有 runner 时会永久排队，每次 push 堆一个 run），也防止 fork 借 runner 跑代码。
 
 **需要一次性的 runner 注册**（GitHub 的 self-hosted runner 是仓库级的，li3a 那个实例不能复用）：
 
@@ -110,9 +110,12 @@ mkdir -p ~/actions-runner-p550 && cd ~/actions-runner-p550
 ./config.sh --url https://github.com/Acidmoon/kernelci-riscv-p550 \
             --token <上一步的TOKEN> --labels p550
 sudo ./svc.sh install && sudo ./svc.sh start
+
+# 3) 打开真机任务开关（在此之前 push 只跑云端 lint）
+gh variable set P550_RUNNER --body ready --repo Acidmoon/kernelci-riscv-p550
 ```
 
-> workflow 用的是 `runs-on: [self-hosted, p550]`，所以 **`--labels p550` 是必须的**。
+> workflow 用的是 `runs-on: [self-hosted, p550]`，所以 **`--labels p550` 是必须的**；`P550_RUNNER` 变量不设时真机任务直接跳过（不会排队）。
 
 ## 已知边界（如实记录）
 

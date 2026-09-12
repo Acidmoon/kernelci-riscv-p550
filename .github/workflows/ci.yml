@@ -27,12 +27,19 @@ jobs:
         run: DRY_RUN=1 bash scripts/run-board-tests.sh
 
   # 自托管任务: 在你自己电脑上跑完整板子测试
-  # 前置条件（见 README「CI 接入」）: 为本仓库注册一个带 p550 标签的 runner
+  #
+  # 门控（重要）:
+  #   GitHub 的 self-hosted runner 是仓库级的，且没有 runner 时任务会永久排队
+  #   （每次 push 都堆一个 run）。所以这里用仓库变量当开关，默认不跑：
+  #     1) 先注册一个带 p550 标签的 runner（见 README「CI 接入」）
+  #     2) 再打开开关: gh variable set P550_RUNNER --body ready --repo Acidmoon/kernelci-riscv-p550
+  #   想临时跳过时: gh variable set P550_RUNNER --body off
   board-tests:
     runs-on: [self-hosted, p550]
     needs: lint
-    # 保险丝: 只接受主仓库调度（防止 fork 的 workflow 借 runner 跑恶意代码）
-    if: github.repository == 'Acidmoon/kernelci-riscv-p550'
+    if: >-
+      github.repository == 'Acidmoon/kernelci-riscv-p550' &&
+      vars.P550_RUNNER == 'ready'
     steps:
       - uses: actions/checkout@v4
       - name: 板子可达性预检（给失败一个清晰原因）
